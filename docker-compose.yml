@@ -1,0 +1,52 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: daytracker-postgres
+    environment:
+      POSTGRES_DB: tracker
+      POSTGRES_USER: postgre
+      POSTGRES_PASSWORD: "admin"
+    ports:
+      - "55432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgre -d tracker"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build: .
+    container_name: daytracker-api
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/tracker
+      DB_USERNAME: postgre
+      DB_PASSWORD: "admin"
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      JWT_SECRET: change-this-secret-in-production-change-this-secret
+      CATALOG_REFRESH_ON_STARTUP: "true"
+      CATALOG_REFRESH_PAGES: "2"
+      CATALOG_ANIME_REFRESH_PAGES: "10"
+      CATALOG_MANHWA_REFRESH_PAGES: "10"
+      CATALOG_REFRESH_PAGE_SIZE: "50"
+      ANILIST_MIN_INTERVAL_MS: "2100"
+      ANILIST_RATE_LIMIT_RETRIES: "2"
+      KITSU_REFRESH_PAGES: "3"
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    container_name: daytracker-frontend
+    depends_on:
+      - api
+    ports:
+      - "5173:80"
+
+volumes:
+  postgres-data:

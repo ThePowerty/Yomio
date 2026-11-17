@@ -1,0 +1,7 @@
+target/
+.m2/
+.idea/
+.git/
+*.iml
+frontend/node_modules/
+frontend/dist/

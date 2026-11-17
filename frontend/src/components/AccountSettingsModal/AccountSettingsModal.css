@@ -1,0 +1,170 @@
+.account-modal-backdrop {
+  position: fixed;
+  z-index: 80;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(20, 27, 31, 0.58);
+}
+
+.account-modal {
+  width: min(760px, 100%);
+  max-height: calc(100dvh - 48px);
+  overflow: auto;
+  border: 1px solid #d9e1e4;
+  border-radius: 12px;
+  background: #f7f9fa;
+  box-shadow: 0 24px 70px rgba(16, 24, 28, 0.3);
+}
+
+.account-modal-header {
+  position: sticky;
+  z-index: 2;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px 22px;
+  border-bottom: 1px solid #dfe5e8;
+  background: rgba(247, 249, 250, 0.96);
+}
+
+.account-settings-form {
+  display: grid;
+  gap: 14px;
+  padding: 18px 22px 22px;
+}
+
+.account-section {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+  border: 1px solid #dfe5e8;
+  border-radius: 9px;
+  background: #ffffff;
+}
+
+.account-section-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  color: #44736b;
+}
+
+.account-section-heading > svg {
+  margin-top: 2px;
+  flex: 0 0 auto;
+}
+
+.account-section-heading h3 {
+  margin: 0;
+  color: #1f252b;
+}
+
+.account-section-heading p {
+  margin-top: 4px;
+  color: #60707a;
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+
+.account-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.account-save {
+  justify-self: end;
+  padding-inline: 16px;
+}
+
+.account-feedback {
+  padding: 10px 12px;
+  border-radius: 7px;
+  font-size: 0.84rem;
+}
+
+.account-feedback.success {
+  color: #285f52;
+  background: #e3f2ed;
+}
+
+.account-feedback.error {
+  color: #8c342b;
+  background: #faece9;
+}
+
+.account-future-section {
+  background: #fbfcfd;
+}
+
+.future-feature-note,
+.mfa-pending-panel {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 8px;
+  color: #6a4a11;
+  background: #fff8e6;
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+
+.future-feature-note svg,
+.mfa-pending-panel svg {
+  flex: 0 0 auto;
+}
+
+.mfa-status {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 11px 12px;
+  border-radius: 7px;
+  background: #f0f3f5;
+  font-size: 0.85rem;
+}
+
+.mfa-status strong {
+  color: #9a4b3e;
+}
+
+.mfa-pending-panel strong {
+  display: block;
+  margin-bottom: 3px;
+}
+
+.mfa-pending-panel p {
+  margin: 0;
+}
+
+@media (max-width: 640px) {
+  .account-modal-backdrop {
+    padding: 0;
+  }
+
+  .account-modal {
+    width: 100%;
+    height: 100dvh;
+    max-height: none;
+    border: 0;
+    border-radius: 0;
+  }
+
+  .account-modal-header,
+  .account-settings-form {
+    padding-inline: 16px;
+  }
+
+  .account-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .account-save {
+    width: 100%;
+  }
+}

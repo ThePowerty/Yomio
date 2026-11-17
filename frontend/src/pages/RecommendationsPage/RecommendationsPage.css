@@ -1,0 +1,55 @@
+.recommendations-page {
+  display: grid;
+  gap: 16px;
+  padding: 18px;
+}
+
+.recommendations-page .panel-header {
+  margin-bottom: 0;
+}
+
+.recommendations-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.recommendations-catalog-grid {
+  width: 100%;
+}
+
+.recommendation-filters {
+  width: fit-content;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 8px;
+  background: #e8edf0;
+}
+
+.recommendation-filters button {
+  min-height: 36px;
+  padding: 0 14px;
+  border-radius: 6px;
+  color: #52616b;
+  background: transparent;
+  font-weight: 800;
+}
+
+.recommendation-filters button.active {
+  color: #ffffff;
+  background: #44736b;
+}
+
+@media (max-width: 640px) {
+  .recommendations-page {
+    padding: 14px;
+  }
+
+  .recommendations-actions,
+  .recommendations-actions button {
+    width: 100%;
+  }
+}

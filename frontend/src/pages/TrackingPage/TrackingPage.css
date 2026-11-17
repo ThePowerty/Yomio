@@ -1,0 +1,9 @@
+@media (max-width: 640px) {
+  .tracking-page .track-card {
+    grid-template-columns: 1fr;
+  }
+
+  .tracking-page .track-card .icon-button {
+    justify-self: end;
+  }
+}
