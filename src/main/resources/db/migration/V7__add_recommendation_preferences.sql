@@ -1,0 +1,7 @@
+CREATE TABLE recommendation_preferences (
+    id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT NOT NULL UNIQUE REFERENCES usuarios(id) ON DELETE CASCADE,
+    genres VARCHAR(500),
+    formats VARCHAR(100),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);

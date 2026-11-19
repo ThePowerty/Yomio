@@ -11,6 +11,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import java.time.Instant;
 
 @Entity
@@ -53,12 +55,20 @@ public class TrackedItem {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private AppUser user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "catalog_media_id")
+    private CatalogMedia catalogMedia;
+
+    @Column(nullable = false)
+    private boolean favorite = false;
 
     protected TrackedItem() {
     }
 
-    public TrackedItem(String title, MediaType type, Integer currentChapter, Integer totalChapters, ReadingStatus readingStatus, Integer score, boolean finished, String notes, AppUser user) {
+    public TrackedItem(String title, MediaType type, Integer currentChapter, Integer totalChapters, ReadingStatus readingStatus, Integer score, boolean finished, String notes, AppUser user, CatalogMedia catalogMedia, boolean favorite) {
         this.title = title;
         this.type = type;
         this.currentChapter = currentChapter;
@@ -68,9 +78,15 @@ public class TrackedItem {
         this.finished = finished;
         this.notes = notes;
         this.user = user;
+        this.catalogMedia = catalogMedia;
+        this.favorite = favorite;
     }
 
-    public void update(String title, MediaType type, Integer currentChapter, Integer totalChapters, ReadingStatus readingStatus, Integer score, boolean finished, String notes) {
+    public TrackedItem(String title, MediaType type, Integer currentChapter, Integer totalChapters, ReadingStatus readingStatus, Integer score, boolean finished, String notes, AppUser user) {
+        this(title, type, currentChapter, totalChapters, readingStatus, score, finished, notes, user, null, false);
+    }
+
+    public void update(String title, MediaType type, Integer currentChapter, Integer totalChapters, ReadingStatus readingStatus, Integer score, boolean finished, String notes, CatalogMedia catalogMedia, boolean favorite) {
         this.title = title;
         this.type = type;
         this.currentChapter = currentChapter;
@@ -79,6 +95,8 @@ public class TrackedItem {
         this.score = score;
         this.finished = finished;
         this.notes = notes;
+        this.catalogMedia = catalogMedia;
+        this.favorite = favorite;
         this.updatedAt = Instant.now();
     }
 
@@ -132,4 +150,8 @@ public class TrackedItem {
     public AppUser getUser() {
         return user;
     }
+
+    public CatalogMedia getCatalogMedia() { return catalogMedia; }
+
+    public boolean isFavorite() { return favorite; }
 }

@@ -14,6 +14,7 @@ import com.code.DayTracker.repositories.CatalogMediaRepository;
 import java.util.List;
 import java.util.LinkedHashSet;
 import java.util.Objects;
+import java.time.Instant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -42,6 +43,7 @@ public class CatalogService {
     private final int refreshPageSize;
     private final boolean refreshOnStartup;
     private final String refreshOnStartupType;
+    private final boolean releaseAuditOnStartup;
 
     public CatalogService(
             AniListClient aniListClient,
@@ -54,7 +56,8 @@ public class CatalogService {
             @Value("${app.catalog.manhwa-refresh-pages:10}") int manhwaRefreshPages,
             @Value("${app.catalog.refresh-page-size:25}") int refreshPageSize,
             @Value("${app.catalog.refresh-on-startup:false}") boolean refreshOnStartup,
-            @Value("${app.catalog.refresh-on-startup-type:}") String refreshOnStartupType
+            @Value("${app.catalog.refresh-on-startup-type:}") String refreshOnStartupType,
+            @Value("${app.catalog.release-audit-on-startup:false}") boolean releaseAuditOnStartup
     ) {
         this.aniListClient = aniListClient;
         this.catalogMediaRepository = catalogMediaRepository;
@@ -67,6 +70,7 @@ public class CatalogService {
         this.refreshPageSize = refreshPageSize;
         this.refreshOnStartup = refreshOnStartup;
         this.refreshOnStartupType = refreshOnStartupType;
+        this.releaseAuditOnStartup = releaseAuditOnStartup;
     }
 
     @Transactional(readOnly = true)
@@ -135,6 +139,7 @@ public class CatalogService {
                             match.spanishTitle(),
                             mergeAliases(currentAliases, match.aliases())
                     );
+                    media.updateReleaseProgress(parseChapter(match.lastChapter()), null);
                 });
             }
         } catch (RuntimeException exception) {
@@ -184,6 +189,38 @@ public class CatalogService {
         return updated;
     }
 
+    @Transactional
+    public int refreshReleaseProgress() {
+        int updated = 0;
+        for (CatalogMedia media : catalogMediaRepository.findAllByStatusIgnoreCase("RELEASING")) {
+            try {
+                if (media.getType() == MediaType.ANIME) {
+                    List<AniListMedia> matches = aniListClient.search(MediaType.ANIME, media.getTitle(), 1, 10);
+                    AniListMedia match = matches.stream().filter(item -> Objects.equals(item.id(), media.getAnilistId())).findFirst().orElse(null);
+                    if (match != null && match.nextAiringEpisode() != null) {
+                        Instant nextRelease = match.nextAiringEpisode().airingAt() == null ? null : Instant.ofEpochSecond(match.nextAiringEpisode().airingAt());
+                        media.updateReleaseProgress(Math.max(0, match.nextAiringEpisode().episode() - 1), nextRelease);
+                        catalogMediaRepository.save(media);
+                        updated++;
+                    }
+                } else if (media.getType() == MediaType.MANGA || media.getType() == MediaType.MANHWA) {
+                    String language = media.getType() == MediaType.MANHWA ? "ko" : "ja";
+                    MangaDexTitle match = mangaDexClient.searchTitles(media.getTitle(), 10, language).stream()
+                            .filter(item -> Objects.equals(item.anilistId(), media.getAnilistId())).findFirst().orElse(null);
+                    String latestValue = match == null ? null : match.lastChapter();
+                    if (match != null && (latestValue == null || latestValue.isBlank())) {
+                        latestValue = mangaDexClient.latestPublishedChapter(match.mangaDexId());
+                    }
+                    Integer latest = parseChapter(latestValue);
+                    if (latest != null) { media.updateReleaseProgress(latest, null); catalogMediaRepository.save(media); updated++; }
+                }
+            } catch (RuntimeException exception) {
+                LOGGER.warn("Release progress audit failed for catalog media {}: {}", media.getId(), exception.getMessage());
+            }
+        }
+        return updated;
+    }
+
     private int enrichFromKitsu(MediaType requestedType) {
         int enriched = 0;
         try {
@@ -224,6 +261,11 @@ public class CatalogService {
         catch (NumberFormatException ignored) { return null; }
     }
 
+    private Integer parseChapter(String value) {
+        try { return value == null || value.isBlank() ? null : (int) Math.floor(Double.parseDouble(value)); }
+        catch (NumberFormatException ignored) { return null; }
+    }
+
     private String firstNonBlank(String... values) {
         for (String value : values) {
             if (value != null && !value.isBlank()) return value;
@@ -235,7 +277,9 @@ public class CatalogService {
     public void refreshCatalogWeekly() {
         try {
             int imported = refreshCatalog();
+            int releaseProgressUpdated = refreshReleaseProgress();
             LOGGER.info("AniList catalog weekly refresh completed. Imported or updated {} items.", imported);
+            LOGGER.info("Release progress audit updated {} currently publishing titles.", releaseProgressUpdated);
         } catch (RuntimeException exception) {
             LOGGER.warn("AniList catalog weekly refresh failed: {}", exception.getMessage());
         }
@@ -243,10 +287,15 @@ public class CatalogService {
 
     @EventListener(ApplicationReadyEvent.class)
     public void refreshCatalogOnStartupWhenEmpty() {
-        if (!refreshOnStartup) {
+        if (!refreshOnStartup && !releaseAuditOnStartup) {
             return;
         }
         try {
+            if (releaseAuditOnStartup) {
+                int updated = refreshReleaseProgress();
+                LOGGER.info("Release progress startup audit updated {} titles.", updated);
+            }
+            if (!refreshOnStartup) return;
             MediaType startupType = refreshOnStartupType == null || refreshOnStartupType.isBlank()
                     ? null
                     : MediaType.valueOf(refreshOnStartupType.trim().toUpperCase());
@@ -298,6 +347,14 @@ public class CatalogService {
                     aniListMedia.source(),
                     aniListMedia.updatedAt()
             );
+            Integer completedTotal = catalogType == MediaType.ANIME || catalogType == MediaType.MOVIE
+                    ? aniListMedia.episodes() : aniListMedia.chapters();
+            Integer latestReleased = aniListMedia.nextAiringEpisode() == null
+                    ? completedTotal
+                    : Math.max(0, aniListMedia.nextAiringEpisode().episode() - 1);
+            Instant nextRelease = aniListMedia.nextAiringEpisode() == null || aniListMedia.nextAiringEpisode().airingAt() == null
+                    ? null : Instant.ofEpochSecond(aniListMedia.nextAiringEpisode().airingAt());
+            catalogMedia.updateReleaseProgress(latestReleased, nextRelease);
             catalogMediaRepository.save(catalogMedia);
             saved++;
         }

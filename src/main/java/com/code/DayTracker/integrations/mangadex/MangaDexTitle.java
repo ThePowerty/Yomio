@@ -6,6 +6,7 @@ public record MangaDexTitle(
         String mangaDexId,
         Integer anilistId,
         String spanishTitle,
-        List<String> aliases
+        List<String> aliases,
+        String lastChapter
 ) {
 }

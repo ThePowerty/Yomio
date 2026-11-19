@@ -47,6 +47,7 @@ public class AniListClient {
                   countryOfOrigin
                   source
                   updatedAt
+                  nextAiringEpisode { episode airingAt }
                 }
               }
             }
@@ -74,6 +75,7 @@ public class AniListClient {
                 countryOfOrigin
                 source
                 updatedAt
+                nextAiringEpisode { episode airingAt }
               }
             }
             """;

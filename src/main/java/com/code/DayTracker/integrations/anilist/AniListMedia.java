@@ -21,7 +21,8 @@ public record AniListMedia(
         Integer seasonYear,
         String countryOfOrigin,
         String source,
-        Long updatedAt
+        Long updatedAt,
+        AniListAiring nextAiringEpisode
 ) {
     public record AniListTitle(
             String romaji,
@@ -35,4 +36,6 @@ public record AniListMedia(
 
     public record AniListDate(Integer year) {
     }
+
+    public record AniListAiring(Integer episode, Long airingAt) {}
 }

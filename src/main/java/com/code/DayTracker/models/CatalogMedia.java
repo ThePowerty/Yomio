@@ -79,6 +79,10 @@ public class CatalogMedia {
 
     private Long providerUpdatedAt;
 
+    private Integer latestReleasedUnit;
+
+    private Instant nextReleaseAt;
+
     @Column(nullable = false)
     private Instant lastSyncedAt = Instant.now();
 
@@ -224,6 +228,14 @@ public class CatalogMedia {
 
     public Instant getLastSyncedAt() {
         return lastSyncedAt;
+    }
+
+    public Integer getLatestReleasedUnit() { return latestReleasedUnit; }
+    public Instant getNextReleaseAt() { return nextReleaseAt; }
+
+    public void updateReleaseProgress(Integer latestReleasedUnit, Instant nextReleaseAt) {
+        if (latestReleasedUnit != null && latestReleasedUnit >= 0) this.latestReleasedUnit = latestReleasedUnit;
+        this.nextReleaseAt = nextReleaseAt;
     }
 
     public void updateDetails(

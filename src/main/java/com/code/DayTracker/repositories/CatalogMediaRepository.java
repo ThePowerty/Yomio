@@ -22,6 +22,8 @@ public interface CatalogMediaRepository extends JpaRepository<CatalogMedia, Long
 
     Page<CatalogMedia> findByTypeOrderByPopularityDescAverageScoreDesc(MediaType type, Pageable pageable);
 
+    List<CatalogMedia> findAllByStatusIgnoreCase(String status);
+
     @Query("""
             select media from CatalogMedia media
             where (:type is null or media.type = :type)

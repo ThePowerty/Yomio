@@ -9,6 +9,7 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import java.util.List;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -32,9 +33,10 @@ public class CatalogController {
             @RequestParam(required = false) String query,
             @RequestParam(required = false) MediaType type,
             @RequestParam(defaultValue = "20") @Min(1) @Max(50) int limit,
-            @RequestParam(defaultValue = "true") boolean importMissing
+            @RequestParam(defaultValue = "false") boolean importMissing,
+            Authentication authentication
     ) {
-        if (importMissing) {
+        if (importMissing && isAuthenticated(authentication)) {
             return catalogService.searchAndImport(query, type, limit);
         }
         return catalogService.search(query, type, limit);
@@ -51,9 +53,10 @@ public class CatalogController {
             @RequestParam(required = false) MediaType type,
             @RequestParam(defaultValue = "0") @Min(0) int page,
             @RequestParam(defaultValue = "12") @Min(1) @Max(50) int size,
-            @RequestParam(defaultValue = "true") boolean importMissing
+            @RequestParam(defaultValue = "false") boolean importMissing,
+            Authentication authentication
     ) {
-        if (importMissing) {
+        if (importMissing && isAuthenticated(authentication)) {
             return catalogService.searchAndImportPage(query, type, page, size);
         }
         return catalogService.searchPage(query, type, page, size);
@@ -64,5 +67,16 @@ public class CatalogController {
         return new CatalogRefreshResponse(type == null
                 ? catalogService.refreshCatalog()
                 : catalogService.refreshCatalog(type));
+    }
+
+    @PostMapping("/refresh-release-progress")
+    public CatalogRefreshResponse refreshReleaseProgress() {
+        return new CatalogRefreshResponse(catalogService.refreshReleaseProgress());
+    }
+
+    private boolean isAuthenticated(Authentication authentication) {
+        return authentication != null
+                && authentication.isAuthenticated()
+                && !"anonymousUser".equals(authentication.getName());
     }
 }

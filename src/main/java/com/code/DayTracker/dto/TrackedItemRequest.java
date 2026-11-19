@@ -9,6 +9,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public record TrackedItemRequest(
+        Long catalogMediaId,
         @NotBlank
         @Size(max = 180)
         String title,
@@ -33,6 +34,8 @@ public record TrackedItemRequest(
         boolean finished,
 
         @Size(max = 1000)
-        String notes
+        String notes,
+
+        boolean favorite
 ) {
 }

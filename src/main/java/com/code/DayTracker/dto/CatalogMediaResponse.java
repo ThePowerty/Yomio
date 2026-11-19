@@ -29,7 +29,9 @@ public record CatalogMediaResponse(
         Integer seasonYear,
         String countryOfOrigin,
         String source,
-        Instant lastSyncedAt
+        Instant lastSyncedAt,
+        Integer latestReleasedUnit,
+        Instant nextReleaseAt
 ) {
     public static CatalogMediaResponse from(CatalogMedia media) {
         return new CatalogMediaResponse(
@@ -56,7 +58,9 @@ public record CatalogMediaResponse(
                 media.getSeasonYear(),
                 media.getCountryOfOrigin(),
                 media.getSource(),
-                media.getLastSyncedAt()
+                media.getLastSyncedAt(),
+                media.getLatestReleasedUnit(),
+                media.getNextReleaseAt()
         );
     }
 

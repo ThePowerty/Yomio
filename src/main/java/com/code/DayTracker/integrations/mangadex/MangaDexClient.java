@@ -16,11 +16,15 @@ public class MangaDexClient {
     }
 
     public List<MangaDexTitle> searchKoreanTitles(String query, int limit) {
+        return searchTitles(query, limit, "ko");
+    }
+
+    public List<MangaDexTitle> searchTitles(String query, int limit, String originalLanguage) {
         MangaDexResponse response = restClient.get()
                 .uri(uriBuilder -> uriBuilder.path("/manga")
                         .queryParam("title", query)
                         .queryParam("limit", Math.min(limit, 20))
-                        .queryParam("originalLanguage[]", "ko")
+                        .queryParam("originalLanguage[]", originalLanguage)
                         .build())
                 .retrieve()
                 .body(MangaDexResponse.class);
@@ -31,6 +35,27 @@ public class MangaDexClient {
                 .map(this::toTitle)
                 .filter(title -> title.anilistId() != null)
                 .toList();
+    }
+
+    public String latestPublishedChapter(String mangaDexId) {
+        MangaDexFeedResponse response = restClient.get()
+                .uri(uriBuilder -> uriBuilder.path("/manga/{id}/feed")
+                        .queryParam("limit", 20)
+                        .queryParam("order[chapter]", "desc")
+                        .queryParam("includeFutureUpdates", "0")
+                        .queryParam("contentRating[]", "safe")
+                        .queryParam("contentRating[]", "suggestive")
+                        .build(mangaDexId))
+                .retrieve().body(MangaDexFeedResponse.class);
+        if (response == null || response.data() == null) return null;
+        return response.data().stream().map(MangaDexFeedResponse.ChapterData::attributes)
+                .filter(java.util.Objects::nonNull).map(MangaDexFeedResponse.ChapterAttributes::chapter)
+                .filter(value -> value != null && !value.isBlank())
+                .max(java.util.Comparator.comparingDouble(this::numericChapter)).orElse(null);
+    }
+
+    private double numericChapter(String value) {
+        try { return Double.parseDouble(value); } catch (NumberFormatException ignored) { return -1; }
     }
 
     private MangaDexTitle toTitle(MangaDexResponse.MangaDexData data) {
@@ -52,7 +77,8 @@ public class MangaDexClient {
                 data.id(),
                 parseAniListId(attributes.links()),
                 spanishTitle,
-                List.copyOf(aliases)
+                List.copyOf(aliases),
+                attributes.lastChapter()
         );
     }
 

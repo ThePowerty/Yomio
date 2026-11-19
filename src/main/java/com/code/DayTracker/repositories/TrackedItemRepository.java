@@ -9,5 +9,11 @@ public interface TrackedItemRepository extends JpaRepository<TrackedItem, Long> 
 
     List<TrackedItem> findAllByUserUsernameOrderByUpdatedAtDesc(String username);
 
+    List<TrackedItem> findAllByUserUsernameAndReadingStatusNotOrderByUpdatedAtDesc(String username, com.code.DayTracker.models.ReadingStatus readingStatus);
+
     Optional<TrackedItem> findByIdAndUserUsername(Long id, String username);
+
+    Optional<TrackedItem> findByCatalogMediaIdAndUserUsername(Long catalogMediaId, String username);
+
+    List<TrackedItem> findAllByUserUsernameAndReadingStatusOrderByUpdatedAtDesc(String username, com.code.DayTracker.models.ReadingStatus readingStatus);
 }
