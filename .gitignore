@@ -42,6 +42,13 @@ application-local.yaml
 *~
 /premium-audit.json
 
+### Local project and agent notes ###
+/AGENTS.md
+/MEMORY.md
+/premium-ui.json
+/docs/RELEASE_READINESS.md
+/docs/STORE_PUBLISHING.md
+
 ### Operating systems ###
 .DS_Store
 Thumbs.db
