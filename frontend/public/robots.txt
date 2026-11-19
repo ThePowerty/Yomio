@@ -1,0 +1,14 @@
+User-agent: *
+Allow: /
+Allow: /privacy
+Allow: /legal
+Disallow: /auth
+Disallow: /tracking
+Disallow: /calendar
+Disallow: /wishlist
+Disallow: /catalog/
+Disallow: /recommendations
+Disallow: /stories/
+Disallow: /ratings/
+Disallow: /admin
+Disallow: /api/

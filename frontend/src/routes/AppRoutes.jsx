@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import { AppLayout } from "../layouts/AppLayout";
 import { AdminPage } from "../pages/AdminPage/AdminPage";
 import { AnimeCatalogPage } from "../pages/AnimeCatalogPage/AnimeCatalogPage";
@@ -10,17 +10,36 @@ import { MovieCatalogPage } from "../pages/MovieCatalogPage/MovieCatalogPage";
 import { CatalogMediaDetailPage } from "../pages/CatalogMediaDetailPage/CatalogMediaDetailPage";
 import { RecommendationsPage } from "../pages/RecommendationsPage/RecommendationsPage";
 import { TrackingPage } from "../pages/TrackingPage/TrackingPage";
+import { WishlistPage } from "../pages/WishlistPage/WishlistPage";
+import { StoryPage } from "../pages/StoryPage/StoryPage";
+import { ChapterRatingsPage } from "../pages/ChapterRatingsPage/ChapterRatingsPage";
+import { ReleaseCalendarPage } from "../pages/ReleaseCalendarPage/ReleaseCalendarPage";
+import { LegalPage } from "../pages/LegalPage/LegalPage";
 import { PrivateRoute } from "./PrivateRoute";
+import { LandingPage } from "../pages/LandingPage/LandingPage";
+import { NotFoundPage } from "../pages/NotFoundPage/NotFoundPage";
+import { useAuth } from "../context/AuthContext";
+
+function RootPage() {
+  const { isAuthenticated } = useAuth();
+  return isAuthenticated ? <AppLayout><HomePage /></AppLayout> : <LandingPage />;
+}
 
 export function AppRoutes() {
   return (
     <Routes>
+      <Route path="/" element={<RootPage />} />
       <Route path="/auth" element={<AuthPage />} />
+      <Route path="/privacy" element={<LegalPage />} />
+      <Route path="/legal" element={<LegalPage />} />
 
       <Route element={<PrivateRoute />}>
         <Route element={<AppLayout />}>
-          <Route index element={<HomePage />} />
           <Route path="tracking" element={<TrackingPage />} />
+          <Route path="calendar" element={<ReleaseCalendarPage />} />
+          <Route path="wishlist" element={<WishlistPage />} />
+          <Route path="stories/:mediaId" element={<StoryPage />} />
+          <Route path="ratings/:mediaId" element={<ChapterRatingsPage />} />
           <Route path="catalog/anime" element={<AnimeCatalogPage />} />
           <Route path="catalog/manga" element={<MangaCatalogPage />} />
           <Route path="catalog/manhwa" element={<ManhwaCatalogPage />} />
@@ -34,7 +53,7 @@ export function AppRoutes() {
         </Route>
       </Route>
 
-      <Route path="*" element={<Navigate to="/" replace />} />
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
 }

@@ -1,5 +1,6 @@
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { ForbiddenPage } from "../pages/ForbiddenPage/ForbiddenPage";
 
 export function PrivateRoute({ adminOnly = false }) {
   const { isAuthenticated, isAdmin } = useAuth();
@@ -10,7 +11,7 @@ export function PrivateRoute({ adminOnly = false }) {
   }
 
   if (adminOnly && !isAdmin) {
-    return <Navigate to="/" replace />;
+    return <ForbiddenPage />;
   }
 
   return <Outlet />;

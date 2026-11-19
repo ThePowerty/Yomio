@@ -1,0 +1,6 @@
+.wishlist-card { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 18px; border: 1px solid #dfe5e8; border-radius: 14px; background: #fff; }
+.wishlist-card h3 { margin: 7px 0 4px; }
+.wishlist-card p { margin: 0; color: var(--muted); }
+.wishlist-card-actions, .wishlist-delete-confirm > div { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+.wishlist-delete-confirm { text-align: right; }
+@media (max-width: 720px) { .wishlist-card { align-items: stretch; flex-direction: column; } .wishlist-card-actions, .wishlist-delete-confirm > div { justify-content: flex-start; } }

@@ -7,36 +7,43 @@
 .media-detail-meta, .media-detail-genres { color: #44736b; font-weight: 700; }
 .media-detail-original-title { color: #60707a; font-style: italic; }
 .media-detail-description { color: #52616b; line-height: 1.65; white-space: pre-line; }
-.tracking-detail-form header { margin-bottom: 4px; }
-.tracking-form-hint { margin-top: 6px; color: #60707a; font-size: .9rem; }
-.status-fieldset, .rating-fieldset { margin: 0; padding: 0; border: 0; min-width: 0; }
-.status-fieldset legend, .rating-fieldset legend { margin-bottom: 8px; color: #52616b; font-size: .88rem; font-weight: 800; }
-.status-options { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
-.status-options button { min-height: 42px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 0 10px; border: 1px solid #ccd6da; border-radius: 8px; background: #fbfcfd; color: #52616b; font-weight: 750; }
-.status-options button:hover, .status-options button.active { border-color: #44736b; background: #e4f0ed; color: #28574f; }
-.tracking-quick-grid { display: grid; grid-template-columns: 1fr 1.4fr .7fr; gap: 14px; align-items: end; }
-.chapter-stepper { display: grid; grid-template-columns: 42px 1fr 42px; }
-.chapter-stepper input { border-radius: 0; text-align: center; font-weight: 800; }
-.chapter-stepper button { display: grid; place-items: center; border: 1px solid #ccd6da; background: #e8edf0; color: #315f57; }
-.chapter-stepper button:first-child { border-radius: 7px 0 0 7px; border-right: 0; }
-.chapter-stepper button:last-child { border-radius: 0 7px 7px 0; border-left: 0; }
-.progress-field { display: grid; grid-template-columns: 1fr auto; gap: 8px; color: #52616b; font-size: .88rem; font-weight: 700; }
-.progress-field strong { color: #263038; font-size: 1.1rem; }
-.progress-track { grid-column: 1 / -1; height: 10px; overflow: hidden; border-radius: 999px; background: #e8edf0; }
-.progress-track span { display: block; height: 100%; border-radius: inherit; background: #44736b; transition: width .2s ease; }
-.total-chapters-summary { min-height: 68px; display: grid; place-items: center; align-content: center; gap: 4px; border: 1px solid #dfe5e8; border-radius: 8px; background: #f6f8f9; }
-.total-chapters-summary span { color: #60707a; font-size: .78rem; font-weight: 700; }
-.total-chapters-summary strong { font-size: 1.3rem; }
+
+.detail-actions-panel { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 18px; }
+.detail-actions-panel p { margin-top: 6px; color: #60707a; }
+.detail-actions-panel .notice { grid-column: 1 / -1; }
+.detail-primary-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
+
+.registration-backdrop { position: fixed; z-index: 90; inset: 0; display: grid; place-items: center; padding: 24px; background: rgba(20, 27, 31, .62); }
+.registration-modal { width: min(720px, 100%); max-height: calc(100dvh - 48px); overflow: auto; border: 1px solid #d9e1e4; border-radius: 12px; background: #f7f9fa; box-shadow: 0 24px 70px rgba(16, 24, 28, .32); }
+.registration-modal-header { position: sticky; z-index: 2; top: 0; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 20px 22px; border-bottom: 1px solid #dfe5e8; background: rgba(247, 249, 250, .97); }
+.registration-modal-header h2 { margin-top: 4px; font-size: 1.35rem; }
+.registration-modal-header p { margin-top: 4px; color: #60707a; font-size: .86rem; }
+.registration-form { display: grid; gap: 18px; padding: 20px 22px 22px; }
+.registration-progress-grid { display: grid; grid-template-columns: .8fr 1.2fr; gap: 14px; align-items: stretch; }
+.available-unit-card { display: grid; place-items: center; align-content: center; gap: 3px; min-height: 112px; padding: 14px; border: 1px solid #d6e1df; border-radius: 8px; color: #52616b; background: #edf5f3; text-align: center; }
+.available-unit-card span { font-size: .8rem; font-weight: 800; }
+.available-unit-card strong { color: #28574f; font-size: 2rem; line-height: 1; }
+.available-unit-card small, .registration-form label small, .rating-fieldset small { color: #718087; font-size: .76rem; font-weight: 500; }
+.registration-progress { display: grid; grid-template-columns: 1fr auto; gap: 8px; color: #52616b; font-size: .82rem; font-weight: 800; }
+.registration-progress > strong { color: #263038; }
+.registration-progress > div { grid-column: 1 / -1; height: 9px; overflow: hidden; border-radius: 999px; background: #e1e7e9; }
+.registration-progress > div span { display: block; height: 100%; border-radius: inherit; background: #44736b; transition: width 180ms ease; }
+.rating-fieldset { margin: 0; padding: 0; border: 0; min-width: 0; }
+.rating-fieldset legend { margin-bottom: 8px; color: #52616b; font-size: .88rem; font-weight: 800; }
 .rating-options { display: grid; grid-template-columns: repeat(10, minmax(34px, 1fr)); gap: 6px; }
-.rating-options button { min-height: 38px; border: 1px solid #ccd6da; border-radius: 7px; background: #fbfcfd; color: #52616b; font-weight: 800; }
-.rating-options button:hover:not(:disabled), .rating-options button.active { border-color: #44736b; background: #44736b; color: #fff; }
-.rating-fieldset:disabled .rating-options { opacity: .55; }
-.rating-fieldset small { display: block; margin-top: 7px; color: #7c8b93; }
-.detail-save { justify-self: end; }
+.rating-options button { min-height: 40px; border: 1px solid #ccd6da; border-radius: 7px; background: #fbfcfd; color: #52616b; font-weight: 800; }
+.rating-options button:hover, .rating-options button.active { border-color: #44736b; background: #44736b; color: #fff; }
+.rating-fieldset small { display: block; margin-top: 7px; }
+.registration-error { padding: 10px 12px; border-radius: 7px; color: #8c342b; background: #faece9; font-size: .84rem; }
+.registration-form-actions { position: sticky; bottom: 0; display: flex; justify-content: flex-end; gap: 10px; padding-top: 2px; background: #f7f9fa; }
+
 @media (max-width: 720px) {
-  .media-detail-hero, .tracking-quick-grid { grid-template-columns: 1fr; }
-  .status-options { grid-template-columns: 1fr 1fr; }
-  .rating-options { grid-template-columns: repeat(5, minmax(34px, 1fr)); }
+  .media-detail-hero, .detail-actions-panel, .registration-progress-grid { grid-template-columns: 1fr; }
   .media-detail-cover { width: min(220px, 70vw); justify-self: center; }
-  .detail-save { width: 100%; }
+  .detail-primary-actions { display: grid; justify-content: stretch; }
+  .registration-backdrop { padding: 0; }
+  .registration-modal { width: 100%; height: 100dvh; max-height: none; border: 0; border-radius: 0; }
+  .registration-modal-header, .registration-form { padding-inline: 16px; }
+  .rating-options { grid-template-columns: repeat(5, minmax(40px, 1fr)); }
+  .registration-form-actions { display: grid; grid-template-columns: 1fr 1fr; padding-bottom: max(0px, env(safe-area-inset-bottom)); }
 }

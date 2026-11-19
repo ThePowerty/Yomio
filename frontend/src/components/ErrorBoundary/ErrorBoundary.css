@@ -1,0 +1,16 @@
+.fatal-error {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: #f4f6f8;
+}
+
+.fatal-error__panel {
+  width: min(100%, 560px);
+  padding: clamp(24px, 5vw, 44px);
+}
+
+.fatal-error__panel p {
+  max-width: 52ch;
+}

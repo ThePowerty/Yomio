@@ -1,4 +1,4 @@
-import { BookOpen, ChevronDown, ClipboardList, Film, Home, Languages, Library, LogOut, Menu, MonitorPlay, PanelLeftClose, PanelLeftOpen, RefreshCw, Settings, Shield, Sparkles, UserRound } from "lucide-react";
+import { Bookmark, BookOpen, CalendarDays, ChevronDown, ClipboardList, Film, Home, Languages, Library, LogOut, Menu, MonitorPlay, PanelLeftClose, PanelLeftOpen, RefreshCw, Settings, Shield, Sparkles, UserRound } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
@@ -10,6 +10,8 @@ import { useAuth } from "../context/AuthContext";
 const titlesByPath = {
   "/": "layout.titles.home",
   "/tracking": "layout.titles.tracking",
+  "/calendar": "layout.titles.calendar",
+  "/wishlist": "layout.titles.wishlist",
   "/catalog/anime": "layout.titles.animeCatalog",
   "/catalog/manga": "layout.titles.mangaCatalog",
   "/catalog/manhwa": "layout.titles.manhwaCatalog",
@@ -18,15 +20,15 @@ const titlesByPath = {
   "/admin": "layout.titles.admin"
 };
 
-export function AppLayout() {
+export function AppLayout({ children }) {
   return (
     <TrackerProvider>
-      <AppShell />
+      <AppShell>{children}</AppShell>
     </TrackerProvider>
   );
 }
 
-function AppShell() {
+function AppShell({ children }) {
   const { t, i18n } = useTranslation();
   const { user, isAdmin, logout } = useAuth();
   const { loadItems } = useTracker();
@@ -40,6 +42,8 @@ function AppShell() {
   const pages = [
     { to: "/", label: t("layout.nav.home"), icon: Home, end: true },
     { to: "/tracking", label: t("layout.nav.tracking"), icon: ClipboardList },
+    { to: "/calendar", label: t("layout.nav.calendar"), icon: CalendarDays },
+    { to: "/wishlist", label: t("layout.nav.wishlist"), icon: Bookmark },
     { to: "/catalog/anime", label: t("layout.nav.animeCatalog"), icon: MonitorPlay },
     { to: "/catalog/manga", label: t("layout.nav.mangaCatalog"), icon: Library },
     { to: "/catalog/manhwa", label: t("layout.nav.manhwaCatalog"), icon: BookOpen },
@@ -48,8 +52,12 @@ function AppShell() {
     ...(isAdmin ? [{ to: "/admin", label: t("layout.nav.admin"), icon: Shield }] : [])
   ];
   const detailType = location.pathname.split("/")[2];
-  const detailTitle = detailType ? `layout.titles.${detailType}Catalog` : null;
-  const pageTitle = t(titlesByPath[location.pathname] || detailTitle || "layout.titles.home");
+  const contextualTitle = location.pathname.startsWith("/ratings/")
+    ? "layout.titles.chapterRatings"
+    : location.pathname.startsWith("/stories/")
+      ? "layout.titles.storyWorkspace"
+      : detailType ? `layout.titles.${detailType}Catalog` : null;
+  const pageTitle = t(titlesByPath[location.pathname] || contextualTitle || "layout.titles.home");
 
   useEffect(() => {
     setMobileMenuOpen(false);
@@ -98,9 +106,9 @@ function AppShell() {
       <aside className="sidebar" aria-label={t("layout.pages")}>
         <div className="sidebar-header">
           <div className="brand">
-            <BookOpen size={24} />
-            <div className="sidebar-label">
-              <strong>{t("common.appName")}</strong>
+            <img className="brand-mark" src="/yomio-icono.png" alt={t("common.appName")} />
+            <div className="brand-copy">
+              <img className="brand-logo" src="/yomio-logo-fondo-oscuro.png" alt={t("common.appName")} />
               <span>{user.role}</span>
             </div>
           </div>
@@ -199,7 +207,7 @@ function AppShell() {
           </div>
         </header>
 
-        <Outlet />
+        {children ?? <Outlet />}
         <TrackingEditorModal />
         <AccountSettingsModal open={settingsOpen} onClose={() => setSettingsOpen(false)} />
       </section>

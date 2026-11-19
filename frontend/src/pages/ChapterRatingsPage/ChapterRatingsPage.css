@@ -1,0 +1,5 @@
+.chapter-ratings-page { max-width: 1080px; margin: 0 auto; }
+.chapter-ratings-hero { display: flex; align-items: center; gap: 14px; }
+.chapter-ratings-hero-icon { width: 48px; height: 48px; flex: 0 0 48px; display: grid; place-items: center; border-radius: 9px; color: #28574f; background: #e4f0ed; }
+.chapter-ratings-hero h2 { margin-top: 3px; font-size: 1.35rem; }
+.chapter-ratings-hero p { margin-top: 5px; color: #60707a; line-height: 1.45; }

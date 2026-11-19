@@ -10,18 +10,32 @@ import "./RecommendationsPage.css";
 
 export function RecommendationsPage() {
   const { t } = useTranslation();
-  const { recommendations, refreshCatalog, openNewTracking, status, clearStatus, loading } = useTracker();
+  const { recommendations, refreshCatalog, openNewTracking, loadRecommendations, dismissRecommendation, loadRecommendationPreferences, saveRecommendationPreferences, status, clearStatus, loading } = useTracker();
   const navigate = useNavigate();
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(12);
   const [columns, setColumns] = useState(0);
   const [typeFilter, setTypeFilter] = useState("ANIME");
+  const [genre, setGenre] = useState("");
+  const [publicationStatus, setPublicationStatus] = useState("");
+  const [maxLength, setMaxLength] = useState("");
+  const [includeFinished, setIncludeFinished] = useState(false);
+  const [tasteGenres, setTasteGenres] = useState("");
+  const [tasteFormats, setTasteFormats] = useState(["ANIME", "MANGA", "MANHWA"]);
   const gridRef = useRef(null);
+
+  useEffect(() => {
+    loadRecommendations({ type: typeFilter, genre, status: publicationStatus, maxLength, includeFinished });
+  }, [typeFilter, genre, publicationStatus, maxLength, includeFinished]);
+
+  useEffect(() => { loadRecommendationPreferences().then((value)=>{setTasteGenres((value.genres||[]).join(", "));if(value.formats?.length)setTasteFormats(value.formats);}); }, []);
+
+  async function saveTastes(){await saveRecommendationPreferences({genres:tasteGenres.split(",").map(value=>value.trim()).filter(Boolean),formats:tasteFormats});}
 
   useEffect(() => {
     if (!gridRef.current) return undefined;
     const observer = new ResizeObserver(([entry]) => {
-      const nextColumns = Math.max(1, Math.floor((entry.contentRect.width + 12) / 162));
+      const nextColumns = Math.max(1, Math.floor((entry.contentRect.width + 12) / 182));
       setColumns((current) => current === nextColumns ? current : nextColumns);
     });
     observer.observe(gridRef.current);
@@ -57,7 +71,6 @@ export function RecommendationsPage() {
       <div className="panel-header">
         <div>
           <span className="eyebrow">{t("recommendations.pending")}</span>
-          <h2>{t("recommendations.title")}</h2>
         </div>
         <div className="recommendations-actions">
           <button className="ghost" onClick={refreshCatalog} disabled={loading}>
@@ -76,7 +89,14 @@ export function RecommendationsPage() {
           </button>
         ))}
       </div>
-      <RecommendationList recommendations={visibleRecommendations} onSelect={useRecommendation} containerRef={gridRef} />
+      <details className="taste-selector"><summary>Ajustar mis gustos</summary><p>Útil si todavía no tienes historial suficiente.</p><div><label>Géneros preferidos<input value={tasteGenres} onChange={(event)=>setTasteGenres(event.target.value)} placeholder="Fantasy, Romance, Action" /></label><fieldset><legend>Formatos</legend>{["ANIME","MANGA","MANHWA"].map(value=><label key={value}><input type="checkbox" checked={tasteFormats.includes(value)} onChange={(event)=>setTasteFormats((current)=>event.target.checked?[...current,value]:current.filter(item=>item!==value))}/>{value}</label>)}</fieldset><button className="primary" type="button" onClick={saveTastes}>Guardar gustos</button></div></details>
+      <div className="recommendation-advanced-filters">
+        <label>Género<input value={genre} onChange={(event)=>setGenre(event.target.value)} placeholder="Fantasy, Action…" /></label>
+        <label>Publicación<select value={publicationStatus} onChange={(event)=>setPublicationStatus(event.target.value)}><option value="">Cualquier estado</option><option value="RELEASING">En emisión</option><option value="FINISHED">Finalizada</option><option value="NOT_YET_RELEASED">Próximamente</option></select></label>
+        <label>Extensión máxima<input type="number" min="1" value={maxLength} onChange={(event)=>setMaxLength(event.target.value)} placeholder="Sin límite" /></label>
+        <label className="recommendation-check"><input type="checkbox" checked={includeFinished} onChange={(event)=>setIncludeFinished(event.target.checked)} /> Incluir completadas o descartadas</label>
+      </div>
+      <RecommendationList recommendations={visibleRecommendations} onSelect={useRecommendation} onDismiss={dismissRecommendation} containerRef={gridRef} />
       <CatalogPagination page={page} size={size} sizeOptions={sizeOptions} totalItems={filteredRecommendations.length}
         totalPages={totalPages} disabled={loading} onPageChange={setPage} onSizeChange={(nextSize) => {
           setSize(nextSize);

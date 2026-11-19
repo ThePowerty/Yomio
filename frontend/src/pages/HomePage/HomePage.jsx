@@ -5,6 +5,7 @@ import { RecommendationCarousel } from "../../components/RecommendationCarousel/
 import { StatCard } from "../../components/StatCard/StatCard";
 import { TrackCard } from "../../components/TrackCard/TrackCard";
 import { useTracker } from "../../context/TrackerContext";
+import { ReleaseCalendarPage } from "../ReleaseCalendarPage/ReleaseCalendarPage";
 import "./HomePage.css";
 
 export function HomePage() {
@@ -34,14 +35,28 @@ export function HomePage() {
         <StatCard icon={Sparkles} label={t("home.stats.averageScore")} value={stats.averageScore} detail={t("home.stats.outOfTen")} />
       </section>
 
-      <section className="home-content-grid">
-        <div className="panel">
+      <section className="home-overview-grid">
+        <section className="panel home-calendar-panel">
+          <div className="panel-header">
+            <div>
+              <span className="eyebrow">{t("home.calendarEyebrow")}</span>
+              <h2>{t("home.calendarTitle")}</h2>
+            </div>
+            <button className="ghost home-calendar-link" type="button" onClick={() => navigate("/calendar")}>
+              {t("home.viewCalendar")} <ArrowRight size={17} />
+            </button>
+          </div>
+          <ReleaseCalendarPage compact />
+        </section>
+
+        <section className="home-content-grid">
+          <div className="panel">
           <div className="panel-header">
             <div>
               <span className="eyebrow">{t("home.trackingEyebrow")}</span>
               <h2>{t("home.recentActivity")}</h2>
             </div>
-            <button className="primary" onClick={openNewTracking}>
+            <button className="primary" type="button" onClick={openNewTracking}>
               <Plus size={18} /> {t("home.new")}
             </button>
           </div>
@@ -58,9 +73,9 @@ export function HomePage() {
               ))}
             </div>
           )}
-        </div>
+          </div>
 
-        <div className="panel">
+          <div className="panel">
           <div className="panel-header">
             <div>
               <span className="eyebrow">{t("home.ideas")}</span>
@@ -71,7 +86,8 @@ export function HomePage() {
             </button>
           </div>
           <RecommendationCarousel recommendations={firstRecommendations} onSelect={useRecommendation} />
-        </div>
+          </div>
+        </section>
       </section>
     </div>
   );

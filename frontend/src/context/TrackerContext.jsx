@@ -1,17 +1,22 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { apiRequest } from "../services/api";
+import { trackEvent } from "../services/analytics";
 import { useAuth } from "./AuthContext";
 
 export const emptyTrackForm = {
+  catalogMediaId: null,
+  latestReleasedUnit: null,
+  catalogStatus: null,
   title: "",
   type: "ANIME",
   currentChapter: 0,
   totalChapters: "",
-  readingStatus: "PLAN_TO_READ",
+  readingStatus: "READING",
   score: "",
   finished: false,
-  notes: ""
+  notes: "",
+  favorite: false
 };
 
 const TrackerContext = createContext(null);
@@ -20,8 +25,9 @@ export function TrackerProvider({ children }) {
   const { t } = useTranslation();
   const { token, isAuthenticated } = useAuth();
   const [items, setItems] = useState([]);
+  const [wishlistItems, setWishlistItems] = useState([]);
   const [form, setForm] = useState(emptyTrackForm);
-  const [catalogItems, setCatalogItems] = useState([]);
+  const [recommendationItems, setRecommendationItems] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const [editorOpen, setEditorOpen] = useState(false);
   const [status, setStatus] = useState("");
@@ -30,10 +36,12 @@ export function TrackerProvider({ children }) {
   useEffect(() => {
     if (isAuthenticated && token) {
       loadItems();
-      loadCatalog();
+      loadWishlist();
+      loadRecommendations();
     } else {
       setItems([]);
-      setCatalogItems([]);
+      setWishlistItems([]);
+      setRecommendationItems([]);
     }
   }, [isAuthenticated, token]);
 
@@ -60,10 +68,33 @@ export function TrackerProvider({ children }) {
     };
   }, [items]);
 
-  const recommendations = useMemo(() => {
-    const trackedTitles = new Set(items.map((item) => item.title.toLowerCase()));
-    return catalogItems.filter((item) => !trackedTitles.has((item.titleLocalized || item.title).toLowerCase()));
-  }, [catalogItems, items]);
+  const recommendations = recommendationItems;
+
+  async function loadRecommendations(filters = {}) {
+    if (!token) return [];
+    const params = new URLSearchParams();
+    Object.entries(filters).forEach(([key, value]) => { if (value !== "" && value !== null && value !== undefined && value !== false) params.set(key, String(value)); });
+    try {
+      const data = await apiRequest(`/api/recommendations?${params}`, {}, token);
+      const mapped = data.map((item) => ({ ...item.media, recommendationExplanation: item.explanation, matchScore: item.matchScore }));
+      setRecommendationItems(mapped); return mapped;
+    } catch (error) { setStatus(error.message); return []; }
+  }
+
+  async function dismissRecommendation(mediaId) {
+    try { await apiRequest(`/api/recommendations/${mediaId}/dismiss`, { method: "POST" }, token); setRecommendationItems((current) => current.filter((item) => item.id !== mediaId)); }
+    catch (error) { setStatus(error.message); }
+  }
+
+  async function loadRecommendationPreferences() {
+    try { return await apiRequest("/api/recommendations/preferences", {}, token); }
+    catch (error) { setStatus(error.message); return { genres: [], formats: [] }; }
+  }
+
+  async function saveRecommendationPreferences(preferences) {
+    try { const saved = await apiRequest("/api/recommendations/preferences", { method: "PUT", body: JSON.stringify(preferences) }, token); await loadRecommendations(); return saved; }
+    catch (error) { setStatus(error.message); return null; }
+  }
 
   async function loadItems() {
     if (!token) {
@@ -82,6 +113,65 @@ export function TrackerProvider({ children }) {
     }
   }
 
+  async function loadWishlist() {
+    if (!token) return [];
+    try {
+      const data = await apiRequest("/api/wishlist", {}, token);
+      setWishlistItems(data);
+      return data;
+    } catch (error) {
+      setStatus(error.message);
+      return [];
+    }
+  }
+
+  async function addToWishlist(mediaOrId, favorite = false) {
+    const catalogMediaId = typeof mediaOrId === "object" ? mediaOrId.id : mediaOrId;
+    setLoading(true);
+    setStatus("");
+    try {
+      await apiRequest("/api/wishlist", { method: "POST", body: JSON.stringify({ catalogMediaId, favorite }) }, token);
+      setStatus(t("status.wishlistCreated"));
+      await loadWishlist();
+      return true;
+    } catch (error) {
+      setStatus(error.message);
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function startWishlistItem(id) {
+    setLoading(true);
+    setStatus("");
+    try {
+      await apiRequest(`/api/wishlist/${id}/start`, { method: "PATCH" }, token);
+      setStatus(t("status.wishlistStarted"));
+      await Promise.all([loadWishlist(), loadItems()]);
+      return true;
+    } catch (error) {
+      setStatus(error.message);
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function deleteWishlistItem(id) {
+    setLoading(true);
+    setStatus("");
+    try {
+      await apiRequest(`/api/wishlist/${id}`, { method: "DELETE" }, token);
+      setStatus(t("status.wishlistDeleted"));
+      await loadWishlist();
+    } catch (error) {
+      setStatus(error.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
   async function loadCatalog(query = "", type = "") {
     if (!token) {
       return [];
@@ -89,13 +179,7 @@ export function TrackerProvider({ children }) {
 
     if (!query && !type) {
       try {
-        const mediaTypes = ["ANIME", "MOVIE", "MANGA", "MANHWA"];
-        const pages = await Promise.all(mediaTypes.map((mediaType) => apiRequest(
-          `/api/catalog?limit=50&type=${mediaType}&importMissing=false`, {}, token
-        )));
-        const combined = pages.flat();
-        setCatalogItems(combined);
-        return combined;
+        return await apiRequest("/api/catalog?limit=50&importMissing=false", {}, token);
       } catch (error) {
         setStatus(error.message);
         return [];
@@ -170,7 +254,7 @@ export function TrackerProvider({ children }) {
       currentChapter: Number(form.currentChapter),
       totalChapters: form.totalChapters === "" ? null : Number(form.totalChapters),
       finished: form.readingStatus === "COMPLETED",
-      score: form.readingStatus === "COMPLETED" && form.score !== "" ? Number(form.score) : null
+      score: form.score !== "" ? Number(form.score) : null
     };
 
     try {
@@ -178,6 +262,7 @@ export function TrackerProvider({ children }) {
         method: editingId ? "PUT" : "POST",
         body: JSON.stringify(payload)
       }, token);
+      trackEvent(editingId ? "progress_updated" : "title_added");
       setForm(emptyTrackForm);
       setEditingId(null);
       setEditorOpen(false);
@@ -209,6 +294,9 @@ export function TrackerProvider({ children }) {
   function editItem(item) {
     setEditingId(item.id);
     setForm({
+      catalogMediaId: item.catalogMediaId ?? null,
+      latestReleasedUnit: item.latestReleasedUnit ?? null,
+      catalogStatus: item.catalogStatus ?? null,
       title: item.title,
       type: item.type,
       currentChapter: item.currentChapter,
@@ -216,7 +304,8 @@ export function TrackerProvider({ children }) {
       readingStatus: item.readingStatus ?? (item.finished ? "COMPLETED" : "READING"),
       score: item.score ?? "",
       finished: item.finished,
-      notes: item.notes ?? ""
+      notes: item.notes ?? "",
+      favorite: item.favorite ?? false
     });
     setEditorOpen(true);
   }
@@ -224,14 +313,18 @@ export function TrackerProvider({ children }) {
   function fillFormFromCatalog(media) {
     setEditingId(null);
     setForm({
+      catalogMediaId: media.id,
+      latestReleasedUnit: media.latestReleasedUnit ?? null,
+      catalogStatus: media.status ?? null,
       title: media.titleLocalized || media.title,
       type: media.type,
       currentChapter: 0,
       totalChapters: media.type === "ANIME" || media.type === "MOVIE" ? media.episodes ?? "" : media.chapters ?? "",
-      readingStatus: "PLAN_TO_READ",
+      readingStatus: "READING",
       score: "",
       finished: false,
-      notes: truncate(media.description ?? "", 1000)
+      notes: "",
+      favorite: false
     });
     setEditorOpen(true);
   }
@@ -261,9 +354,9 @@ export function TrackerProvider({ children }) {
 
   const value = useMemo(() => ({
     items,
+    wishlistItems,
     stats,
     recommendations,
-    catalogItems,
     form,
     setForm,
     editingId,
@@ -273,9 +366,17 @@ export function TrackerProvider({ children }) {
     clearStatus,
     loading,
     loadItems,
+    loadWishlist,
+    addToWishlist,
+    startWishlistItem,
+    deleteWishlistItem,
     loadCatalog,
     loadCatalogPage,
     refreshCatalog,
+    loadRecommendations,
+    dismissRecommendation,
+    loadRecommendationPreferences,
+    saveRecommendationPreferences,
     saveItem,
     deleteItem,
     editItem,
@@ -283,7 +384,7 @@ export function TrackerProvider({ children }) {
     openNewTracking,
     closeEditor,
     resetForm
-  }), [items, stats, recommendations, catalogItems, form, editingId, editorOpen, status, loading, t]);
+  }), [items, wishlistItems, stats, recommendations, form, editingId, editorOpen, status, loading, t]);
 
   return <TrackerContext.Provider value={value}>{children}</TrackerContext.Provider>;
 }

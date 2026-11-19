@@ -4,12 +4,23 @@
 }
 
 .home-carousel-viewport {
+  position: relative;
   min-height: 225px;
   overflow: hidden;
 }
 
 .home-carousel-slide {
-  animation: home-carousel-enter 360ms ease both;
+  width: 100%;
+}
+
+.home-carousel-slide-incoming {
+  position: absolute;
+  inset: 0;
+  visibility: hidden;
+}
+
+.home-carousel-slide .recommendation-card {
+  will-change: transform, opacity;
 }
 
 .home-carousel-slide .recommendations-catalog-grid {
@@ -62,11 +73,6 @@
   background: #44736b;
 }
 
-@keyframes home-carousel-enter {
-  from { opacity: 0; transform: translateX(22px); }
-  to { opacity: 1; transform: translateX(0); }
-}
-
 @media (max-width: 640px) {
   .home-carousel-slide .recommendations-catalog-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -75,10 +81,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .home-carousel-slide {
-    animation: none;
-  }
-
   .home-carousel-dots button {
     transition: none;
   }

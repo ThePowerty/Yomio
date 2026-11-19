@@ -1,0 +1,4 @@
+.analytics-consent { position: fixed; z-index: 120; left: 18px; right: 18px; bottom: 18px; width: min(calc(100% - 36px), 760px); margin: auto; display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 18px; border: 1px solid #cfdadc; border-radius: 10px; background: #fff; box-shadow: 0 22px 64px rgba(18,30,34,.22); }
+.analytics-consent > div:first-child { display: grid; gap: 5px; }.analytics-consent p { color: #52616b; font-size: .9rem; line-height: 1.45; }.analytics-consent a { width: fit-content; color: #315f57; font-size: .84rem; font-weight: 700; text-underline-offset: 3px; }
+.analytics-consent-actions { flex: 0 0 auto; display: flex; gap: 8px; }
+@media (max-width: 680px) { .analytics-consent { bottom: 78px; align-items: stretch; flex-direction: column; gap: 14px; }.analytics-consent-actions { display: grid; grid-template-columns: 1fr 1fr; }.analytics-consent-actions button { width: 100%; } }

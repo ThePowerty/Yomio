@@ -21,7 +21,6 @@ export function AdminPage() {
         <div className="panel-header">
           <div>
             <span className="eyebrow">{t("admin.eyebrow")}</span>
-            <h2>{t("admin.title")}</h2>
           </div>
         </div>
         <p className="muted">{t("admin.restricted")}</p>

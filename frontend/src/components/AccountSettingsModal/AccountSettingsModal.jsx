@@ -1,17 +1,23 @@
-import { AlertTriangle, KeyRound, Mail, Save, ShieldCheck, UserRound, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { AlertTriangle, KeyRound, Mail, Save, ShieldCheck, Trash2, UserRound, X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../../context/AuthContext";
 import "./AccountSettingsModal.css";
 
 export function AccountSettingsModal({ open, onClose }) {
+  const modalRef = useRef(null);
+  const returnFocusRef = useRef(null);
   const { t } = useTranslation();
-  const { user, updateProfile } = useAuth();
+  const { user, updateProfile, deleteAccount } = useAuth();
   const [form, setForm] = useState({ username: "", email: "" });
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [mfaSetupOpen, setMfaSetupOpen] = useState(false);
+  const [deleteStep, setDeleteStep] = useState(0);
+  const [deleteConfirmation, setDeleteConfirmation] = useState("");
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
 
   useEffect(() => {
     if (!open) return;
@@ -19,16 +25,55 @@ export function AccountSettingsModal({ open, onClose }) {
     setMessage("");
     setError("");
     setMfaSetupOpen(false);
+    setDeleteStep(0);
+    setDeleteConfirmation("");
+    setDeleting(false);
+    setDeleteError("");
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return undefined;
+    returnFocusRef.current = document.activeElement;
+    const focusFrame = window.requestAnimationFrame(() => modalRef.current?.querySelector("button")?.focus());
+    return () => {
+      window.cancelAnimationFrame(focusFrame);
+      returnFocusRef.current?.focus?.();
+    };
   }, [open]);
 
   useEffect(() => {
     if (!open) return undefined;
     function closeOnEscape(event) {
-      if (event.key === "Escape") onClose();
+      if (event.key === "Escape") {
+        if (deleteStep > 0) {
+          setDeleteStep(0);
+          setDeleteConfirmation("");
+        } else onClose();
+      } else if (event.key === "Tab" && modalRef.current) {
+        const focusable = [...modalRef.current.querySelectorAll("button:not(:disabled), input:not(:disabled), a[href]")];
+        if (!focusable.length) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+        if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+      }
     }
     document.addEventListener("keydown", closeOnEscape);
     return () => document.removeEventListener("keydown", closeOnEscape);
-  }, [open, onClose]);
+  }, [open, onClose, deleteStep]);
+
+  async function confirmAccountDeletion() {
+    if (deleteConfirmation !== user.username || deleting) return;
+    setDeleting(true);
+    setDeleteError("");
+    try {
+      await deleteAccount();
+      onClose();
+    } catch (requestError) {
+      setDeleteError(requestError.message);
+      setDeleting(false);
+    }
+  }
 
   async function submitProfile(event) {
     event.preventDefault();
@@ -49,9 +94,9 @@ export function AccountSettingsModal({ open, onClose }) {
 
   return (
     <div className="account-modal-backdrop" role="presentation" onMouseDown={(event) => {
-      if (event.target === event.currentTarget) onClose();
+      if (event.target === event.currentTarget && deleteStep === 0 && !deleting) onClose();
     }}>
-      <section className="account-modal" role="dialog" aria-modal="true" aria-labelledby="account-settings-title">
+      <section ref={modalRef} className="account-modal" role="dialog" aria-modal="true" aria-labelledby="account-settings-title">
         <header className="account-modal-header">
           <div>
             <span className="eyebrow">{t("account.eyebrow")}</span>
@@ -62,7 +107,7 @@ export function AccountSettingsModal({ open, onClose }) {
           </button>
         </header>
 
-        <form className="account-settings-form" onSubmit={submitProfile}>
+        <form noValidate className="account-settings-form" onSubmit={submitProfile}>
           <section className="account-section">
             <div className="account-section-heading">
               <UserRound size={19} />
@@ -109,6 +154,51 @@ export function AccountSettingsModal({ open, onClose }) {
               <div className="mfa-pending-panel">
                 <AlertTriangle size={19} />
                 <div><strong>{t("account.mfaSetupTitle")}</strong><p>{t("account.mfaSetupFuture")}</p></div>
+              </div>
+            )}
+          </section>
+
+          <section className="account-section account-danger-zone">
+            <div className="account-section-heading danger-heading">
+              <Trash2 size={19} />
+              <div><h3>{t("account.deleteTitle")}</h3><p>{t("account.deleteDescription")}</p></div>
+            </div>
+
+            {deleteStep === 0 && (
+              <button className="account-delete-trigger" type="button" onClick={() => setDeleteStep(1)}>
+                <Trash2 size={17} /> {t("account.deleteAction")}
+              </button>
+            )}
+
+            {deleteStep === 1 && (
+              <div className="account-delete-confirm" role="alert" aria-live="polite">
+                <AlertTriangle size={22} />
+                <div><strong>{t("account.deleteFirstTitle")}</strong><p>{t("account.deleteFirstMessage")}</p></div>
+                <div className="account-delete-actions">
+                  <button className="ghost" type="button" autoFocus onClick={() => setDeleteStep(0)}>{t("common.cancel")}</button>
+                  <button className="danger-outline" type="button" onClick={() => setDeleteStep(2)}>{t("account.continueDelete")}</button>
+                </div>
+              </div>
+            )}
+
+            {deleteStep === 2 && (
+              <div className="account-delete-confirm final" role="alert" aria-labelledby="delete-account-final-title" aria-describedby="delete-account-final-description">
+                <Trash2 size={22} />
+                <div>
+                  <strong id="delete-account-final-title">{t("account.deleteFinalTitle")}</strong>
+                  <p id="delete-account-final-description">{t("account.deleteFinalMessage", { username: user.username })}</p>
+                </div>
+                <label>
+                  {t("account.typeUsername")}
+                  <input autoFocus value={deleteConfirmation} onChange={(event) => setDeleteConfirmation(event.target.value)} onKeyDown={(event) => event.key === "Enter" && event.preventDefault()} autoComplete="off" />
+                </label>
+                {deleteError && <p className="account-feedback error">{deleteError}</p>}
+                <div className="account-delete-actions">
+                  <button className="ghost" type="button" disabled={deleting} onClick={() => { setDeleteStep(0); setDeleteConfirmation(""); }}>{t("common.cancel")}</button>
+                  <button className="danger-action" type="button" disabled={deleteConfirmation !== user.username || deleting} onClick={confirmAccountDeletion}>
+                    {deleting ? t("account.deleting") : t("account.deleteForever")}
+                  </button>
+                </div>
               </div>
             )}
           </section>

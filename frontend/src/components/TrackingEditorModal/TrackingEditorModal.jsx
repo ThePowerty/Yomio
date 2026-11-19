@@ -60,13 +60,27 @@ export function TrackingEditorModal() {
 
   function updateReadingStatus(readingStatus) {
     const completed = readingStatus === "COMPLETED";
-    const hasTotalChapters = form.totalChapters !== "" && form.totalChapters !== null && form.totalChapters !== undefined;
+    const atLatestRelease = readingStatus === "UP_TO_DATE";
+    const releasing = form.catalogStatus?.toUpperCase() === "RELEASING";
+    const maximumUnit = releasing ? form.latestReleasedUnit : form.totalChapters || form.latestReleasedUnit;
     setForm({
       ...form,
       readingStatus,
       finished: completed,
-      currentChapter: completed && hasTotalChapters ? form.totalChapters : form.currentChapter,
-      score: completed ? form.score : ""
+      currentChapter: (completed || atLatestRelease) && maximumUnit ? maximumUnit : form.currentChapter
+    });
+  }
+
+  function updateProgress(currentChapter) {
+    const releasing = form.catalogStatus?.toUpperCase() === "RELEASING";
+    const maximumUnit = Number(releasing ? form.latestReleasedUnit : form.totalChapters || form.latestReleasedUnit) || 0;
+    const belowEnd = ["COMPLETED", "UP_TO_DATE"].includes(form.readingStatus)
+      && Number(currentChapter) < maximumUnit;
+    setForm({
+      ...form,
+      currentChapter,
+      readingStatus: belowEnd ? "READING" : form.readingStatus,
+      finished: belowEnd ? false : form.finished
     });
   }
 
@@ -86,7 +100,7 @@ export function TrackingEditorModal() {
 
         {!editingId && (
           <section className="catalog-picker">
-            <form className="catalog-picker-search" onSubmit={submitSearch}>
+            <form noValidate className="catalog-picker-search" onSubmit={submitSearch}>
               <label>
                 {t("modal.searchCatalog")}
                 <div className="catalog-picker-row">
@@ -135,7 +149,7 @@ export function TrackingEditorModal() {
                     onClick={() => selectMedia(media)}
                   >
                     <span className="catalog-picker-cover">
-                      {media.coverImage && <img src={media.coverImage} alt="" />}
+                      {media.coverImage && <img src={media.coverImage} alt={`Portada de ${media.titleLocalized || media.title}`} />}
                     </span>
                     <span>
                       <strong>{media.titleLocalized || media.title}</strong>
@@ -152,7 +166,7 @@ export function TrackingEditorModal() {
           </section>
         )}
 
-        {editingId && <form className="tracking-modal-form stack" onSubmit={saveItem}>
+        {editingId && <form noValidate className="tracking-modal-form stack" onSubmit={saveItem}>
           <div className="grid-2">
             <label>
               {t("modal.title")}
@@ -171,15 +185,16 @@ export function TrackingEditorModal() {
               <input
                 type="number"
                 min="0"
+                max={(form.catalogStatus?.toUpperCase() === "RELEASING" ? form.latestReleasedUnit : form.totalChapters || form.latestReleasedUnit) || undefined}
                 value={form.currentChapter}
-                onChange={(event) => setForm({ ...form, currentChapter: event.target.value })}
+                onChange={(event) => updateProgress(event.target.value)}
                 required
               />
             </label>
 
             <label>
               {t("modal.totalChapters")}
-              <input value={form.totalChapters || t("common.noData")} readOnly />
+              <input value={(form.catalogStatus?.toUpperCase() === "RELEASING" ? form.latestReleasedUnit : form.totalChapters || form.latestReleasedUnit) || t("common.noData")} readOnly />
             </label>
           </div>
 
@@ -187,7 +202,11 @@ export function TrackingEditorModal() {
             <label>
               {t("modal.readingStatus")}
               <select value={form.readingStatus} onChange={(event) => updateReadingStatus(event.target.value)}>
-                {Object.keys(t("readingStatus", { returnObjects: true })).map((statusKey) => (
+                {Object.keys(t("readingStatus", { returnObjects: true })).filter((statusKey) => {
+                  if (statusKey === "PLAN_TO_READ") return false;
+                  const releasing = form.catalogStatus?.toUpperCase() === "RELEASING";
+                  return releasing ? statusKey !== "COMPLETED" : statusKey !== "UP_TO_DATE";
+                }).map((statusKey) => (
                   <option key={statusKey} value={statusKey}>{t(`readingStatus.${statusKey}`)}</option>
                 ))}
               </select>
@@ -197,12 +216,11 @@ export function TrackingEditorModal() {
               {t("modal.score")}
               <input
                 type="number"
-                min="0"
+                min="1"
                 max="10"
                 value={form.score}
-                disabled={form.readingStatus !== "COMPLETED"}
                 onChange={(event) => setForm({ ...form, score: event.target.value })}
-                placeholder={form.finished ? t("modal.scoreEnabledPlaceholder") : t("modal.scoreDisabledPlaceholder")}
+                placeholder={t("modal.scoreEnabledPlaceholder")}
               />
             </label>
           </div>
@@ -217,6 +235,7 @@ export function TrackingEditorModal() {
               rows={3}
             />
           </label>
+          <label className="spoiler-check"><input type="checkbox" checked={form.favorite} onChange={(event)=>setForm({...form,favorite:event.target.checked})}/> Marcar como favorita</label>
 
           <Notice message={status} onClose={clearStatus} />
 

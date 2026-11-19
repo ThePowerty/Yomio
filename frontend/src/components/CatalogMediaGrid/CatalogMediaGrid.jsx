@@ -66,7 +66,7 @@ export function CatalogMediaGrid({ type }) {
   return (
     <div className="catalog-page">
       <section className="panel catalog-toolbar">
-        <form className="catalog-search" onSubmit={submitSearch}>
+        <form noValidate className="catalog-search" onSubmit={submitSearch}>
           <label>
             {t("catalog.search", { type: title })}
             <div className="catalog-search-row">
@@ -139,9 +139,10 @@ function buildDetail(media, t) {
   const year = media.seasonYear || media.startYear;
   const video = media.type === "ANIME" || media.type === "MOVIE";
   const total = video ? media.episodes : media.chapters;
+  const latest = media.latestReleasedUnit;
   const parts = [
     year,
-    total ? `${total} ${video ? t("common.episodesShort") : t("common.chaptersShort")}` : null,
+    total ? `${total} ${video ? t("common.episodesShort") : t("common.chaptersShort")}` : latest != null ? `Último publicado: ${latest}` : null,
     media.averageScore ? `${media.averageScore}/100` : null
   ].filter(Boolean);
   return parts.length ? parts.join(" - ") : media.status || t("common.anilistCatalog");

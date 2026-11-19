@@ -1,0 +1,97 @@
+.yomio-story-ambient {
+  position: absolute;
+  z-index: 1;
+  inset: 3% 4% 24%;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.yomio-story-ambient svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: visible;
+}
+
+.story-ambient-route {
+  stroke: rgba(154, 226, 209, .34);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-dasharray: 8 12;
+  will-change: stroke-dashoffset, opacity;
+}
+
+.story-ambient-dot {
+  fill: #a9eadb;
+  filter: drop-shadow(0 0 8px rgba(169, 234, 219, .82));
+  will-change: transform, opacity;
+}
+
+.story-ambient-node,
+.story-ambient-card,
+.story-ambient-progress {
+  will-change: transform, opacity;
+}
+
+.story-ambient-node circle {
+  fill: rgba(221, 247, 241, .08);
+  stroke: rgba(183, 233, 222, .54);
+  stroke-width: 1.5;
+}
+
+.story-ambient-node path,
+.story-ambient-node rect {
+  fill: none;
+  stroke: #b7e9de;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.story-ambient-node .story-ambient-play {
+  fill: #8fe0cc;
+  stroke: none;
+}
+
+.story-ambient-card > rect:first-child,
+.story-ambient-progress > rect:first-child {
+  fill: rgba(225, 247, 242, .06);
+  stroke: rgba(183, 233, 222, .32);
+  stroke-width: 1.2;
+}
+
+.story-ambient-card > rect:not(:first-child),
+.story-ambient-progress > rect:not(:first-child) {
+  fill: rgba(143, 224, 204, .18);
+}
+
+.story-ambient-card path {
+  fill: none;
+  stroke: rgba(202, 241, 232, .56);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.story-ambient-card circle,
+.story-ambient-progress circle {
+  fill: #8fe0cc;
+}
+
+@media (max-width: 900px) {
+  .yomio-story-ambient {
+    inset: -4% -18% 22%;
+    opacity: .7;
+  }
+
+  .story-ambient-card,
+  .story-ambient-progress {
+    display: none;
+  }
+}
+
+@media (max-width: 520px) {
+  .yomio-story-ambient {
+    inset: 2% -38% 28%;
+    opacity: .58;
+  }
+}

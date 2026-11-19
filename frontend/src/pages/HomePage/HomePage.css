@@ -1,3 +1,10 @@
+.home-overview-grid {
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) minmax(0, 3fr);
+  gap: 16px;
+  align-items: start;
+}
+
 .home-content-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.35fr) minmax(300px, 0.65fr);
@@ -9,7 +16,25 @@
   padding-inline: 11px;
 }
 
+.home-calendar-panel {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.home-calendar-link {
+  min-height: 36px;
+  padding-inline: 11px;
+}
+
+.home-calendar-panel .release-calendar-panel {
+  box-shadow: none;
+}
+
 @media (max-width: 1040px) {
+  .home-overview-grid {
+    grid-template-columns: 1fr;
+  }
+
   .home-content-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -18,5 +43,9 @@
 @media (max-width: 640px) {
   .home-content-grid {
     grid-template-columns: 1fr;
+  }
+
+  .home-calendar-link {
+    width: 100%;
   }
 }
