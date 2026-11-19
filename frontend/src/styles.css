@@ -285,10 +285,12 @@ textarea {
 }
 
 .page-nav {
-  display: grid;
-  align-content: start;
+  display: flex;
+  flex-direction: column;
   gap: 8px;
 }
+
+.page-nav .contact-link { margin-top: auto; padding-top: 10px; border-top: 1px solid rgba(216,226,224,.16); border-radius: 0 0 7px 7px; }
 
 .page-nav a {
   width: 100%;

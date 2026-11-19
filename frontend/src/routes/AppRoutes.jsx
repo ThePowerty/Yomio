@@ -19,6 +19,7 @@ import { PrivateRoute } from "./PrivateRoute";
 import { LandingPage } from "../pages/LandingPage/LandingPage";
 import { NotFoundPage } from "../pages/NotFoundPage/NotFoundPage";
 import { useAuth } from "../context/AuthContext";
+import { ContactPage } from "../pages/ContactPage/ContactPage";
 
 function RootPage() {
   const { isAuthenticated } = useAuth();
@@ -46,6 +47,7 @@ export function AppRoutes() {
           <Route path="catalog/movie" element={<MovieCatalogPage />} />
           <Route path="catalog/:type/:id" element={<CatalogMediaDetailPage />} />
           <Route path="recommendations" element={<RecommendationsPage />} />
+          <Route path="contact" element={<ContactPage />} />
 
           <Route element={<PrivateRoute adminOnly />}>
             <Route path="admin" element={<AdminPage />} />

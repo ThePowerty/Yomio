@@ -1,3 +1,10 @@
 .admin-page .panel {
   min-height: 160px;
 }
+.admin-message-list { display: grid; gap: 10px; }
+.admin-message-list article { display: grid; gap: 8px; padding: 14px; border: 1px solid #dfe5e8; border-radius: 8px; background: #fbfcfd; }
+.admin-message-list article.resolved { opacity: .65; }
+.admin-message-list article > div { display: flex; justify-content: space-between; gap: 10px; }
+.admin-message-list time, .admin-message-list small { color: #60707a; font-size: .78rem; }
+.admin-message-list p { white-space: pre-wrap; overflow-wrap: anywhere; color: #52616b; }
+.admin-message-list button { justify-self: end; }

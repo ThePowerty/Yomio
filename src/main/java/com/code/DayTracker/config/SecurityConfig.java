@@ -45,6 +45,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/refresh").authenticated()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/catalog/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/contact-messages").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/api/contact-messages/*/resolve").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/catalog/refresh", "/api/catalog/refresh-release-progress").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
@@ -77,7 +79,7 @@ public class SecurityConfig {
                 .map(String::trim)
                 .filter(origin -> !origin.isBlank())
                 .toList());
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
         configuration.setExposedHeaders(List.of("Authorization", "X-Request-Id", "Retry-After"));
         configuration.setAllowCredentials(true);

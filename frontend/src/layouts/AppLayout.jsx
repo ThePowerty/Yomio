@@ -1,4 +1,4 @@
-import { Bookmark, BookOpen, CalendarDays, ChevronDown, ClipboardList, Film, Home, Languages, Library, LogOut, Menu, MonitorPlay, PanelLeftClose, PanelLeftOpen, RefreshCw, Settings, Shield, Sparkles, UserRound } from "lucide-react";
+import { Bookmark, BookOpen, CalendarDays, ChevronDown, ClipboardList, Film, Home, Languages, Library, LogOut, Mail, Menu, MonitorPlay, PanelLeftClose, PanelLeftOpen, RefreshCw, Settings, Shield, Sparkles, UserRound } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
@@ -17,7 +17,8 @@ const titlesByPath = {
   "/catalog/manhwa": "layout.titles.manhwaCatalog",
   "/catalog/movie": "layout.titles.movieCatalog",
   "/recommendations": "layout.titles.recommendations",
-  "/admin": "layout.titles.admin"
+  "/admin": "layout.titles.admin",
+  "/contact": "layout.titles.contact"
 };
 
 export function AppLayout({ children }) {
@@ -49,7 +50,8 @@ function AppShell({ children }) {
     { to: "/catalog/manhwa", label: t("layout.nav.manhwaCatalog"), icon: BookOpen },
     { to: "/catalog/movie", label: t("layout.nav.movieCatalog"), icon: Film },
     { to: "/recommendations", label: t("layout.nav.recommendations"), icon: Sparkles },
-    ...(isAdmin ? [{ to: "/admin", label: t("layout.nav.admin"), icon: Shield }] : [])
+    ...(isAdmin ? [{ to: "/admin", label: t("layout.nav.admin"), icon: Shield }] : []),
+    { to: "/contact", label: t("layout.nav.contact"), icon: Mail, className: "contact-link" }
   ];
   const detailType = location.pathname.split("/")[2];
   const contextualTitle = location.pathname.startsWith("/ratings/")
@@ -118,7 +120,7 @@ function AppShell({ children }) {
           {pages.map((page) => {
             const Icon = page.icon;
             return (
-              <NavLink key={page.to} to={page.to} end={page.end}>
+              <NavLink key={page.to} to={page.to} end={page.end} className={page.className}>
                 <Icon size={18} />
                 <span className="sidebar-label">{page.label}</span>
               </NavLink>
