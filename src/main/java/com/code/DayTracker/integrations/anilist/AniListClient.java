@@ -15,9 +15,9 @@ import org.springframework.web.client.RestClient;
 public class AniListClient {
 
     private static final String SEARCH_QUERY = """
-            query ($page: Int, $perPage: Int, $type: MediaType, $search: String, $country: CountryCode, $format: MediaFormat, $formatNot: MediaFormat) {
+            query ($page: Int, $perPage: Int, $type: MediaType, $search: String, $status: MediaStatus, $country: CountryCode, $format: MediaFormat, $formatNot: MediaFormat) {
               Page(page: $page, perPage: $perPage) {
-                media(type: $type, search: $search, countryOfOrigin: $country, format: $format, format_not: $formatNot, sort: [POPULARITY_DESC, SCORE_DESC]) {
+                media(type: $type, search: $search, status: $status, countryOfOrigin: $country, format: $format, format_not: $formatNot, sort: [POPULARITY_DESC, SCORE_DESC]) {
                   id
                   title {
                     romaji
@@ -99,6 +99,10 @@ public class AniListClient {
     }
 
     public List<AniListMedia> search(MediaType type, String query, int page, int perPage) {
+        return search(type, query, null, page, perPage);
+    }
+
+    private List<AniListMedia> search(MediaType type, String query, String status, int page, int perPage) {
         Map<String, Object> variables = new HashMap<>();
         variables.put("page", page);
         variables.put("perPage", perPage);
@@ -110,6 +114,13 @@ public class AniListClient {
                     .replace(", search: $search", "");
         } else {
             variables.put("search", query);
+        }
+        if (status == null || status.isBlank()) {
+            graphQlQuery = graphQlQuery
+                    .replace(", $status: MediaStatus", "")
+                    .replace(", status: $status", "");
+        } else {
+            variables.put("status", status);
         }
         if (type == MediaType.MANHWA) {
             variables.put("country", "KR");
@@ -154,10 +165,22 @@ public class AniListClient {
     }
 
     public List<AniListMedia> popular(MediaType type, int pages, int perPage) {
+        return collectPages(type, null, pages, perPage);
+    }
+
+    public List<AniListMedia> releasing(MediaType type, int pages, int perPage) {
+        return collectPages(type, "RELEASING", pages, perPage);
+    }
+
+    private List<AniListMedia> collectPages(MediaType type, String status, int pages, int perPage) {
         List<AniListMedia> results = new ArrayList<>();
         for (int page = 1; page <= pages; page++) {
             try {
-                results.addAll(search(type, null, page, perPage));
+                List<AniListMedia> pageResults = search(type, null, status, page, perPage);
+                results.addAll(pageResults);
+                if (pageResults.size() < perPage) {
+                    break;
+                }
             } catch (HttpClientErrorException.TooManyRequests exception) {
                 break;
             }

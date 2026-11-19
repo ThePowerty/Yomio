@@ -9,6 +9,7 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import java.util.List;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -36,7 +37,8 @@ public class CatalogController {
             @RequestParam(defaultValue = "false") boolean importMissing,
             Authentication authentication
     ) {
-        if (importMissing && isAuthenticated(authentication)) {
+        if (importMissing) {
+            requireAdmin(authentication);
             return catalogService.searchAndImport(query, type, limit);
         }
         return catalogService.search(query, type, limit);
@@ -51,32 +53,43 @@ public class CatalogController {
     public CatalogPageResponse searchPage(
             @RequestParam(required = false) String query,
             @RequestParam(required = false) MediaType type,
+            @RequestParam(required = false) String status,
             @RequestParam(defaultValue = "0") @Min(0) int page,
             @RequestParam(defaultValue = "12") @Min(1) @Max(50) int size,
             @RequestParam(defaultValue = "false") boolean importMissing,
             Authentication authentication
     ) {
-        if (importMissing && isAuthenticated(authentication)) {
-            return catalogService.searchAndImportPage(query, type, page, size);
+        if (importMissing) {
+            requireAdmin(authentication);
+            return catalogService.searchAndImportPage(query, type, status, page, size);
         }
-        return catalogService.searchPage(query, type, page, size);
+        return catalogService.searchPage(query, type, status, page, size);
     }
 
     @PostMapping("/refresh")
-    public CatalogRefreshResponse refresh(@RequestParam(required = false) MediaType type) {
+    public CatalogRefreshResponse refresh(
+            @RequestParam(required = false) MediaType type,
+            Authentication authentication
+    ) {
+        requireAdmin(authentication);
         return new CatalogRefreshResponse(type == null
                 ? catalogService.refreshCatalog()
                 : catalogService.refreshCatalog(type));
     }
 
     @PostMapping("/refresh-release-progress")
-    public CatalogRefreshResponse refreshReleaseProgress() {
+    public CatalogRefreshResponse refreshReleaseProgress(Authentication authentication) {
+        requireAdmin(authentication);
         return new CatalogRefreshResponse(catalogService.refreshReleaseProgress());
     }
 
-    private boolean isAuthenticated(Authentication authentication) {
-        return authentication != null
+    private void requireAdmin(Authentication authentication) {
+        boolean isAdmin = authentication != null
                 && authentication.isAuthenticated()
-                && !"anonymousUser".equals(authentication.getName());
+                && authentication.getAuthorities().stream()
+                .anyMatch(authority -> "ROLE_ADMIN".equals(authority.getAuthority()));
+        if (!isAdmin) {
+            throw new AccessDeniedException("Administrator role required");
+        }
     }
 }

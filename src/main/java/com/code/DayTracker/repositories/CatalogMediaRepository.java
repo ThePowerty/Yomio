@@ -27,7 +27,8 @@ public interface CatalogMediaRepository extends JpaRepository<CatalogMedia, Long
     @Query("""
             select media from CatalogMedia media
             where (:type is null or media.type = :type)
-              and (
+              and (:status is null or upper(media.status) = upper(:status))
+              and (:query is null or
                 lower(media.title) like lower(concat('%', :query, '%'))
                 or lower(media.titleEnglish) like lower(concat('%', :query, '%'))
                 or lower(media.titleNative) like lower(concat('%', :query, '%'))
@@ -39,6 +40,7 @@ public interface CatalogMediaRepository extends JpaRepository<CatalogMedia, Long
     Page<CatalogMedia> search(
             @Param("query") String query,
             @Param("type") MediaType type,
+            @Param("status") String status,
             Pageable pageable
     );
 }

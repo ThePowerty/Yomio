@@ -34,6 +34,25 @@ class AniListClientTests {
     }
 
     @Test
+    void releasingAnimeRequestsOnlyCurrentlyAiringTitles() {
+        RestClient.Builder builder = RestClient.builder();
+        MockRestServiceServer server = MockRestServiceServer.bindTo(builder).build();
+        server.expect(once(), requestTo("https://graphql.anilist.co"))
+                .andExpect(jsonPath("$.variables.status").value("RELEASING"))
+                .andExpect(jsonPath("$.variables.search").doesNotExist())
+                .andRespond(withStatus(HttpStatus.OK)
+                        .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                        .body("{\"data\":{\"Page\":{\"media\":[{\"id\":195604,\"title\":{\"romaji\":\"Black Clover 2nd Season\"},\"status\":\"RELEASING\"}]}}}"));
+
+        AniListClient client = new AniListClient(builder, 0, 0);
+
+        assertThat(client.releasing(MediaType.ANIME, 10, 50))
+                .extracting(AniListMedia::id)
+                .containsExactly(195604);
+        server.verify();
+    }
+
+    @Test
     void retriesAfterRateLimitResponse() {
         RestClient.Builder builder = RestClient.builder();
         MockRestServiceServer server = MockRestServiceServer.bindTo(builder).build();

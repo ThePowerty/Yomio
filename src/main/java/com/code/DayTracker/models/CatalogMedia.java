@@ -132,9 +132,9 @@ public class CatalogMedia {
 
     public void updateLocalization(String titleLocalized, String aliases) {
         if (titleLocalized != null && !titleLocalized.isBlank()) {
-            this.titleLocalized = titleLocalized;
+            this.titleLocalized = truncate(titleLocalized, 220);
         }
-        this.aliases = aliases;
+        this.aliases = truncate(aliases, 2000);
     }
 
     public void enrichFromSecondarySource(
@@ -149,11 +149,11 @@ public class CatalogMedia {
             Integer startYear,
             Integer endYear
     ) {
-        if ((this.titleEnglish == null || this.titleEnglish.isBlank()) && titleEnglish != null) this.titleEnglish = titleEnglish;
-        if (aliases != null && !aliases.isBlank()) this.aliases = aliases;
-        if ((this.description == null || this.description.isBlank()) && description != null) this.description = description;
-        if ((this.coverImage == null || this.coverImage.isBlank()) && coverImage != null) this.coverImage = coverImage;
-        if ((this.status == null || this.status.isBlank()) && status != null) this.status = status;
+        if ((this.titleEnglish == null || this.titleEnglish.isBlank()) && titleEnglish != null) this.titleEnglish = truncate(titleEnglish, 220);
+        if (aliases != null && !aliases.isBlank()) this.aliases = truncate(aliases, 2000);
+        if ((this.description == null || this.description.isBlank()) && description != null) this.description = truncate(description, 4000);
+        if ((this.coverImage == null || this.coverImage.isBlank()) && coverImage != null) this.coverImage = truncate(coverImage, 500);
+        if ((this.status == null || this.status.isBlank()) && status != null) this.status = truncate(status, 40);
         if (this.episodes == null && episodes != null) this.episodes = episodes;
         if (this.averageScore == null && averageScore != null) this.averageScore = averageScore;
         if (this.popularity == null && popularity != null) this.popularity = popularity;
@@ -261,27 +261,31 @@ public class CatalogMedia {
             String source,
             Long providerUpdatedAt
     ) {
-        this.title = title;
-        this.titleEnglish = titleEnglish;
-        this.titleNative = titleNative;
-        this.titleLocalized = titleLocalized;
-        this.aliases = aliases;
-        this.description = description;
-        this.coverImage = coverImage;
-        this.bannerImage = bannerImage;
-        this.status = status;
+        this.title = truncate(title, 220);
+        this.titleEnglish = truncate(titleEnglish, 220);
+        this.titleNative = truncate(titleNative, 220);
+        this.titleLocalized = truncate(titleLocalized, 220);
+        this.aliases = truncate(aliases, 2000);
+        this.description = truncate(description, 4000);
+        this.coverImage = truncate(coverImage, 500);
+        this.bannerImage = truncate(bannerImage, 500);
+        this.status = truncate(status, 40);
         this.episodes = episodes;
         this.chapters = chapters;
         this.volumes = volumes;
         this.averageScore = averageScore;
         this.popularity = popularity;
-        this.genres = genres;
+        this.genres = truncate(genres, 500);
         this.startYear = startYear;
         this.endYear = endYear;
         this.seasonYear = seasonYear;
-        this.countryOfOrigin = countryOfOrigin;
-        this.source = source;
+        this.countryOfOrigin = truncate(countryOfOrigin, 10);
+        this.source = truncate(source, 50);
         this.providerUpdatedAt = providerUpdatedAt;
         this.lastSyncedAt = Instant.now();
+    }
+
+    private String truncate(String value, int maxLength) {
+        return value == null || value.length() <= maxLength ? value : value.substring(0, maxLength);
     }
 }

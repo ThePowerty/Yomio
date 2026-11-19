@@ -6,10 +6,12 @@ import { RecommendationList } from "../../components/RecommendationList/Recommen
 import { Notice } from "../../components/Notice/Notice";
 import { CatalogPagination } from "../../components/CatalogPagination/CatalogPagination";
 import { useTracker } from "../../context/TrackerContext";
+import { useAuth } from "../../context/AuthContext";
 import "./RecommendationsPage.css";
 
 export function RecommendationsPage() {
   const { t } = useTranslation();
+  const { isAdmin } = useAuth();
   const { recommendations, refreshCatalog, openNewTracking, loadRecommendations, dismissRecommendation, loadRecommendationPreferences, saveRecommendationPreferences, status, clearStatus, loading } = useTracker();
   const navigate = useNavigate();
   const [page, setPage] = useState(0);
@@ -73,9 +75,11 @@ export function RecommendationsPage() {
           <span className="eyebrow">{t("recommendations.pending")}</span>
         </div>
         <div className="recommendations-actions">
-          <button className="ghost" onClick={refreshCatalog} disabled={loading}>
-            <RefreshCw size={18} /> {t("recommendations.refreshAnilist")}
-          </button>
+          {isAdmin && (
+            <button className="ghost" onClick={refreshCatalog} disabled={loading}>
+              <RefreshCw size={18} /> {t("recommendations.refreshAnilist")}
+            </button>
+          )}
           <button className="primary" onClick={openNewTracking}>
             <Plus size={18} /> {t("recommendations.createTracking")}
           </button>

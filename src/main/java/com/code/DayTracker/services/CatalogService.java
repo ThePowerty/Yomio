@@ -12,6 +12,8 @@ import com.code.DayTracker.models.CatalogMedia;
 import com.code.DayTracker.models.MediaType;
 import com.code.DayTracker.repositories.CatalogMediaRepository;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.time.Instant;
@@ -39,6 +41,7 @@ public class CatalogService {
     private final KitsuClient kitsuClient;
     private final int refreshPages;
     private final int animeRefreshPages;
+    private final int releasingRefreshPages;
     private final int manhwaRefreshPages;
     private final int refreshPageSize;
     private final boolean refreshOnStartup;
@@ -53,6 +56,7 @@ public class CatalogService {
             KitsuClient kitsuClient,
             @Value("${app.catalog.refresh-pages:2}") int refreshPages,
             @Value("${app.catalog.anime-refresh-pages:10}") int animeRefreshPages,
+            @Value("${app.catalog.releasing-refresh-pages:10}") int releasingRefreshPages,
             @Value("${app.catalog.manhwa-refresh-pages:10}") int manhwaRefreshPages,
             @Value("${app.catalog.refresh-page-size:25}") int refreshPageSize,
             @Value("${app.catalog.refresh-on-startup:false}") boolean refreshOnStartup,
@@ -66,6 +70,7 @@ public class CatalogService {
         this.kitsuClient = kitsuClient;
         this.refreshPages = refreshPages;
         this.animeRefreshPages = animeRefreshPages;
+        this.releasingRefreshPages = releasingRefreshPages;
         this.manhwaRefreshPages = manhwaRefreshPages;
         this.refreshPageSize = refreshPageSize;
         this.refreshOnStartup = refreshOnStartup;
@@ -80,11 +85,17 @@ public class CatalogService {
 
     @Transactional(readOnly = true)
     public CatalogPageResponse searchPage(String query, MediaType type, int page, int size) {
+        return searchPage(query, type, null, page, size);
+    }
+
+    @Transactional(readOnly = true)
+    public CatalogPageResponse searchPage(String query, MediaType type, String status, int page, int size) {
         String normalizedQuery = normalizeQuery(query);
+        String normalizedStatus = normalizeQuery(status);
         PageRequest pageRequest = PageRequest.of(page, size);
-        Page<CatalogMedia> results = normalizedQuery == null
+        Page<CatalogMedia> results = normalizedQuery == null && normalizedStatus == null
                 ? listCatalog(type, pageRequest)
-                : catalogMediaRepository.search(normalizedQuery, type, pageRequest);
+                : catalogMediaRepository.search(normalizedQuery, type, normalizedStatus, pageRequest);
         return new CatalogPageResponse(
                 results.getContent().stream().map(CatalogMediaResponse::from).toList(),
                 results.getNumber(),
@@ -149,10 +160,15 @@ public class CatalogService {
 
     @Transactional
     public CatalogPageResponse searchAndImportPage(String query, MediaType type, int page, int size) {
+        return searchAndImportPage(query, type, null, page, size);
+    }
+
+    @Transactional
+    public CatalogPageResponse searchAndImportPage(String query, MediaType type, String status, int page, int size) {
         if (page == 0) {
             searchAndImport(query, type, size);
         }
-        return searchPage(query, type, page, size);
+        return searchPage(query, type, status, page, size);
     }
 
     @Transactional
@@ -182,7 +198,15 @@ public class CatalogService {
         int pages = type == MediaType.ANIME
                 ? animeRefreshPages
                 : type == MediaType.MANHWA ? manhwaRefreshPages : refreshPages;
-        int updated = saveAll(aniListClient.popular(type, pages, refreshPageSize), type);
+        List<AniListMedia> refreshCandidates = aniListClient.popular(type, pages, refreshPageSize);
+        if (type == MediaType.ANIME) {
+            LinkedHashMap<Integer, AniListMedia> uniqueCandidates = new LinkedHashMap<>();
+            refreshCandidates.forEach(media -> uniqueCandidates.put(media.id(), media));
+            aniListClient.releasing(type, releasingRefreshPages, refreshPageSize)
+                    .forEach(media -> uniqueCandidates.put(media.id(), media));
+            refreshCandidates = new ArrayList<>(uniqueCandidates.values());
+        }
+        int updated = saveAll(refreshCandidates, type);
         if (type == MediaType.ANIME || type == MediaType.MOVIE) {
             updated += enrichFromKitsu(type);
         }
@@ -349,9 +373,10 @@ public class CatalogService {
             );
             Integer completedTotal = catalogType == MediaType.ANIME || catalogType == MediaType.MOVIE
                     ? aniListMedia.episodes() : aniListMedia.chapters();
-            Integer latestReleased = aniListMedia.nextAiringEpisode() == null
-                    ? completedTotal
-                    : Math.max(0, aniListMedia.nextAiringEpisode().episode() - 1);
+            Integer latestReleased = completedTotal;
+            if (aniListMedia.nextAiringEpisode() != null && aniListMedia.nextAiringEpisode().episode() != null) {
+                latestReleased = Math.max(0, aniListMedia.nextAiringEpisode().episode() - 1);
+            }
             Instant nextRelease = aniListMedia.nextAiringEpisode() == null || aniListMedia.nextAiringEpisode().airingAt() == null
                     ? null : Instant.ofEpochSecond(aniListMedia.nextAiringEpisode().airingAt());
             catalogMedia.updateReleaseProgress(latestReleased, nextRelease);

@@ -23,7 +23,7 @@ const TrackerContext = createContext(null);
 
 export function TrackerProvider({ children }) {
   const { t } = useTranslation();
-  const { token, isAuthenticated } = useAuth();
+  const { token, isAuthenticated, isAdmin } = useAuth();
   const [items, setItems] = useState([]);
   const [wishlistItems, setWishlistItems] = useState([]);
   const [form, setForm] = useState(emptyTrackForm);
@@ -188,7 +188,7 @@ export function TrackerProvider({ children }) {
 
     const params = new URLSearchParams({
       limit: "50",
-      importMissing: query ? "true" : "false"
+      importMissing: query && isAdmin ? "true" : "false"
     });
     if (query) {
       params.set("query", query);
@@ -206,17 +206,18 @@ export function TrackerProvider({ children }) {
     }
   }
 
-  async function loadCatalogPage(query = "", type = "", page = 0, size = 12) {
+  async function loadCatalogPage(query = "", type = "", statusFilter = "", page = 0, size = 12) {
     if (!token) {
       return { items: [], page: 0, size, totalItems: 0, totalPages: 0 };
     }
     const params = new URLSearchParams({
       page: String(page),
       size: String(size),
-      importMissing: query && page === 0 ? "true" : "false"
+      importMissing: query && page === 0 && isAdmin ? "true" : "false"
     });
     if (query) params.set("query", query);
     if (type) params.set("type", type);
+    if (statusFilter) params.set("status", statusFilter);
     try {
       return await apiRequest(`/api/catalog/page?${params.toString()}`, {}, token);
     } catch (error) {
@@ -226,8 +227,8 @@ export function TrackerProvider({ children }) {
   }
 
   async function refreshCatalog(type = "") {
-    if (!token) {
-      return;
+    if (!token || !isAdmin) {
+      return false;
     }
 
     setLoading(true);
@@ -237,8 +238,10 @@ export function TrackerProvider({ children }) {
       await apiRequest(`/api/catalog/refresh${params}`, { method: "POST" }, token);
       await loadCatalog();
       setStatus(t("status.catalogUpdated"));
+      return true;
     } catch (error) {
       setStatus(error.message);
+      return false;
     } finally {
       setLoading(false);
     }
@@ -384,7 +387,7 @@ export function TrackerProvider({ children }) {
     openNewTracking,
     closeEditor,
     resetForm
-  }), [items, wishlistItems, stats, recommendations, form, editingId, editorOpen, status, loading, t]);
+  }), [items, wishlistItems, stats, recommendations, form, editingId, editorOpen, status, loading, isAdmin, t]);
 
   return <TrackerContext.Provider value={value}>{children}</TrackerContext.Provider>;
 }
