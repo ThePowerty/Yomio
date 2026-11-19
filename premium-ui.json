@@ -1,0 +1,18 @@
+{
+  "profile": "product-admin",
+  "sourceRoots": ["frontend/src"],
+  "locale": "es-ES",
+  "canonicalMap": "UX-CONTRACT.md",
+  "requiredCapabilities": ["Select/Listbox", "Date", "Form", "Scrollbar", "Toast", "CRUD"],
+  "ownership": { "Select/Listbox": "native", "Date": "authored-display" },
+  "requiredCommands": ["frontend", "backend", "premium"],
+  "commands": {
+    "frontend": "cd frontend && npm run build",
+    "backend": "mvnw.cmd test",
+    "premium": "python scripts/audit_project.py . --mode strict"
+  },
+  "evidence": {
+    "crudFullFlow": "src/test/java/com/code/DayTracker/services/ProgressFeatureServiceTests.java",
+    "failurePaths": "src/test/java/com/code/DayTracker/services/CommunityServiceTests.java"
+  }
+}

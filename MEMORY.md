@@ -1,47 +1,55 @@
 # MEMORY.md
 
 ## Estado actual
-- Yomio ofrece catálogos de anime, películas, manga y manhwa y seguimiento personal desde una SPA React sobre API Spring Boot.
-- El alta usa catálogo → detalle → seguimiento con estado, capítulos, progreso, valoración y reseña; las tarjetas muestran esos mismos datos.
-- El catálogo indexa títulos localizados y sinónimos; “Estoy siendo criada por villanos” resuelve e importa AniList 167171.
-- Todos los avisos de la interfaz usan `Notice`, con una “×” accesible que permite descartarlos sin recargar.
-- El catálogo prioriza portadas: revela los datos al hacer hover/foco y calcula la paginación en filas completas según las columnas visibles.
-- El seguimiento se registra con estados visuales, selector +/- de capítulos, progreso inmediato y valoración 1-10 al completar.
-- La aplicación ocupa `100dvh`: el contenido hace scroll interno; el lateral se contrae a iconos en escritorio y es un panel superpuesto en móvil.
-- La cabecera tiene un único control del lateral y un menú de perfil con datos de cuenta, idioma y cierre de sesión confirmado en dos pasos.
-- Configuración permite editar usuario/email mediante `/api/account/profile`; el backend valida duplicados y renueva el JWT tras guardar.
-- Contraseña por email y MFA aparecen como funciones futuras: no se marcan activas ni almacenan secretos hasta implementar sus flujos seguros.
-- Recomendaciones reutiliza tarjetas de catálogo y paginación; Inicio muestra las cuatro primeras en un carrusel automático accesible de dos tarjetas por vista.
-- Cada componente React vive en `frontend/src/components/<Componente>/`, con JSX y CSS relacionados colocados juntos.
-- El catálogo contiene 454 animes y 100 películas; `MOVIE` es un tipo persistido mediante Flyway V4 y tiene pantalla/seguimiento propios.
-- Recomendaciones filtra exclusivamente por Anime, Manga o Manhwa y carga hasta 50 candidatos de cada tipo.
+- Yomio es una SPA React 19 sobre Spring Boot 4.1/PostgreSQL 16 para anime, películas, manga y manhwa.
+- Inicio incluye calendario compacto de próximas publicaciones; `/calendar` ofrece mes y agenda con fechas confirmadas de obras activas.
+- DM Sans, identidad oficial, seguimiento, pendientes, catálogo, notas privadas, valoraciones, comunidad y recomendaciones rule-based están integrados.
+- `/api/tracks` excluye `PLAN_TO_READ`; `/api/wishlist` controla pendientes y la transición a seguimiento.
+- El backend calcula límites de spoilers desde el progreso autenticado; notas y valoraciones privadas filtran siempre por propietario.
+- Registro público siempre crea `USER`; refrescos de catálogo requieren `ADMIN`; JWT stateless dura 2 h por defecto, avisa 5 min antes y exige secreto de 32 bytes.
+- Auth y API tienen límites por minuto, errores JSON, `X-Request-Id`, CORS configurable, CSP y logs sin cuerpos/tokens.
+- Recuperación de contraseña usa token aleatorio, hash SHA-256, 15 minutos y un uso; invalida JWT previos y SMTP espera proveedor.
+- Actuator expone health sin detalles y Prometheus solo a ADMIN; el frontend tiene Error Boundary y eventos de conversión sin PII.
+- `docs/RELEASE_READINESS.md` contiene la matriz de auditoría, bloqueos y pasos de publicación.
+- `/privacy` y `/legal` son públicas; `docs/STORE_PUBLISHING.md` documenta requisitos Google/Apple y permisos.
+- Registro exige aceptar políticas y guarda fecha/versión; Ajustes permite borrado irreversible con doble confirmación y usuario escrito.
+- El icono oficial de Yomio está declarado como favicon ICO/PNG y `apple-touch-icon`.
+- Arranque local carga `.env`; credenciales sincronizadas con el volumen antiguo (`postgre`), V10 aplicada y health `UP` el 2026-11-19.
+- GSAP anima continuamente el login con libro→páginas→Y y una ruta ambiental de seguimiento; en movimiento reducido ambos bucles usan solo fundidos/pulsos de opacidad.
+- `/` muestra una landing pública al usuario anónimo y conserva el inicio personal al autenticado; incluye CTA inicial/móvil, enlaces internos, respuestas rápidas, 5 FAQs, casos ilustrativos y agradecimientos.
+- Rutas desconocidas muestran una 404 de marca; títulos, descripciones, canonical, Open Graph/Twitter, robots y schema de aplicación/FAQ se gestionan por ruta.
 
 ## Decisiones vigentes
-- Mantener autenticación JWT stateless y aislamiento por propietario obtenido del contexto autenticado, para impedir acceso cruzado entre usuarios.
-- Clasificar como `MANHWA` el contenido manga de AniList cuyo país de origen sea `KR`, porque AniList no expone manhwa como tipo independiente.
-- Versionar cambios de esquema con Flyway; V1 añade y rellena `reading_status`, mientras `ddl-auto=update` permanece solo como apoyo del entorno actual.
-- V2 actualiza los `CHECK` de `catalog_media.type` y `tracked_items.type` para admitir `MANHWA`; Hibernate no amplía automáticamente restricciones de enums existentes.
-- V3 añade `title_localized` y `aliases`; los alias españoles ampliables viven en `catalog-aliases.json` y complementan los `synonyms` de AniList.
-- Los manhwas se consultan en AniList con `countryOfOrigin=KR` (10×50 por refresco); MangaDex enriquece búsquedas con títulos alternativos enlazados a AniList.
-- AniList está degradado a 30 peticiones/minuto: el cliente aplica 2100 ms entre llamadas, respeta `Retry-After`, reintenta dos veces y conserva refrescos parciales.
-- Las consultas populares omiten `search` y `countryOfOrigin` cuando no aplican; AniList devuelve vacío si esos filtros se envían explícitamente como `null`.
-- AniList sigue como identidad canónica; Kitsu enriquece coincidencias exactas con datos faltantes. Crunchyroll solo expone documentación para socios, no una API pública general.
-- La marca visible y el nombre de Spring son `Yomio`; se conservan artifactId, paquetes y claves internas `DayTracker/daytracker_*` para no romper compatibilidad.
-- Al cambiar el nombre de usuario se debe emitir y persistir un JWT nuevo porque el nombre es el `sub` usado por la autenticación.
+- Obtener siempre el propietario del contexto autenticado; nunca aceptar `user_id` ni rol desde el cliente.
+- Mantener JWT en Bearer por compatibilidad; `localStorage` conserva riesgo residual mitigado por CSP y ausencia de HTML sin escapar.
+- No activar RLS hasta propagar un tenant con `SET LOCAL` dentro de cada transacción y usar un rol no propietario/sin `BYPASSRLS`.
+- Separar rol migrador y rol de aplicación con mínimo privilegio; `ops/postgres/permissions.sql` documenta los grants.
+- Versionar cambios con Flyway; V10 añade consentimiento y cascada de borrado. Falta una migración base completa antes de usar `ddl-auto=validate` en una BD vacía.
+- No presentar recomendaciones como IA ni estimar capítulos/fechas de obras abiertas.
+- Mantener separadas comunidad pública, notas privadas, valoraciones y recomendaciones.
+- GA4 solo carga con flag, ID y consentimiento explícito; anuncios permanecen denegados y los eventos permitidos no contienen PII.
+- No inventar testimonios, dirección ni negocio local: reseñas exigen fuente/permiso y mapa/schema `LocalBusiness` solo aparecen con datos verificados de entorno.
 
-## Siguiente paso recomendado
-- Implementar recuperación de contraseña por email y alta TOTP completa (secreto, QR, verificación y códigos de recuperación) antes de habilitar sus controles.
+## Bloqueos antes de publicar
+- Configurar secretos reales, CORS y SMTP desde el entorno; rotar valores históricos de desarrollo.
+- Diseñar/probar RLS real contra PostgreSQL y completar la migración base reproducible.
+- Conectar Prometheus/alertas y proveedor de errores; elegir analytics con política de consentimiento/retención.
+- Completar la auditoría responsive/accesibilidad del resto de rutas autenticadas; login verificado a 390 px, sin desbordamiento y con teclado.
+- Resolver o aceptar formalmente 4 avisos altos solo de toolchain Vite; producción tiene 0 en `npm audit --omit=dev`.
+- Completar identidad/contacto legal y plazo de purga de backups; aún no existe proyecto móvil publicable.
 
 ## Errores a evitar
-- No enviar `MANHWA` directamente como tipo GraphQL de AniList: consultar `MANGA` y filtrar/clasificar por país `KR`.
-- No asumir que AniList contiene títulos españoles: añadir el alias localizado con su ID AniList verificado cuando falte.
-- No raspar lectores sin API estable: usar APIs públicas documentadas y conservar AniList como identidad canónica para evitar duplicados.
-- No aumentar llamadas masivas sin ajustar el limitador; anime/manhwa usan 10 páginas y manga 2, siempre con 2100 ms entre llamadas.
-- No volver a enviar filtros GraphQL nulos en AniList; construir variables y argumentos solo cuando tengan valor.
-- No consumir endpoints internos de Crunchyroll ni hacer scraping; usar solo APIs públicas/documentadas y degradar si una fuente secundaria falla.
-- Al ampliar un enum persistido, migrar también cualquier restricción `CHECK` generada previamente en PostgreSQL.
-- No confiar en identificadores de usuario del cliente ni copiar secretos de configuración local a entornos reales.
-- No mostrar MFA como activo hasta verificar un primer código TOTP en servidor; nunca guardar el secreto en texto plano ni exponerlo después del alta.
+- No permitir selección de `ADMIN` en registro ni exponer secretos/defaults inseguros en Compose.
+- No consultar/modificar recursos privados por ID sin condición de propietario.
+- No registrar tokens, contraseñas, emails, cuerpos de petición o detalles de excepciones en respuestas.
+- No habilitar RLS parcial con el rol propietario ni usar rate limit en memoria como solución multi-réplica.
+- No forzar `npm audit fix --force`: actualmente propone una bajada incompatible de Vite.
+- No desbloquear escritura con `revealFuture`; solo el progreso concede permisos.
 
 ## Validación más reciente
-- 2026-11-17: reorganización de componentes validada con `npm run build` (Vite 7.3.5, 1782 módulos); última suite Maven: 9 pruebas correctas.
+- 2026-11-19: landing y 404 verificadas en Chromium de escritorio y 390 px; CTA móvil no duplica el CTA inicial, 5 FAQs funcionan con teclado, metadatos/noindex correctos y consola sin errores.
+- 2026-11-19: login GSAP mantiene dos ciclos: marca libro→páginas→Y y fondo con ruta libro/pantalla/recomendación, tarjetas y progreso. En reducido continúan mediante opacidad, sin desplazamientos ni escalas. Verificados ciclos persistentes, consola limpia y composición a 390 px. Carrusel reducido mantiene fundido manual de 180 ms.
+- Auditor premium estricto se bloquea sin salida al escanear y se interrumpió; no confundirlo con una auditoría superada.
+- `designmd lint DESIGN.md`: 0 errores, 10 avisos heredados de tokens/subtokens.
+- `npm audit --omit=dev`: 0; auditoría completa: 4 altas solo dev. Backup restaurado en `tracker_restore_test` con consulta correcta.
+- Backend local verificado: Spring inicia en ~5 s y health responde 200; proceso detenido a petición del usuario y puerto 8080 libre.
