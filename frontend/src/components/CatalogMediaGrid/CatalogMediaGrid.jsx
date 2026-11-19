@@ -11,18 +11,19 @@ import "./CatalogMediaGrid.css";
 export function CatalogMediaGrid({ type }) {
   const { t } = useTranslation();
   const [query, setQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
   const [pageData, setPageData] = useState({ items: [], page: 0, size: 12, totalItems: 0, totalPages: 0 });
   const [catalogLoading, setCatalogLoading] = useState(false);
   const [columns, setColumns] = useState(0);
   const gridRef = useRef(null);
-  const { token } = useAuth();
+  const { token, isAdmin } = useAuth();
   const { loadCatalogPage, refreshCatalog, status, clearStatus, loading } = useTracker();
   const navigate = useNavigate();
   const title = mediaTypeLabel(type, t).toLowerCase();
 
   useEffect(() => {
     if (token && columns > 0) {
-      loadTypeCatalog(query.trim(), 0, Math.min(columns * 2, 50));
+      loadTypeCatalog(query.trim(), statusFilter, 0, Math.min(columns * 2, 50));
     }
   }, [type, token, columns]);
 
@@ -42,21 +43,21 @@ export function CatalogMediaGrid({ type }) {
     return options.length ? options : [50];
   }, [columns]);
 
-  async function loadTypeCatalog(searchTerm, page = 0, size = pageData.size) {
+  async function loadTypeCatalog(searchTerm, status = statusFilter, page = 0, size = pageData.size) {
     setCatalogLoading(true);
-    const data = await loadCatalogPage(searchTerm, type, page, size);
+    const data = await loadCatalogPage(searchTerm, type, status, page, size);
     setPageData(data);
     setCatalogLoading(false);
   }
 
   async function submitSearch(event) {
     event.preventDefault();
-    await loadTypeCatalog(query.trim(), 0);
+    await loadTypeCatalog(query.trim(), statusFilter, 0);
   }
 
   async function refreshFromProvider() {
     await refreshCatalog(type);
-    await loadTypeCatalog(query.trim(), 0);
+    await loadTypeCatalog(query.trim(), statusFilter, 0);
   }
 
   function useMedia(media) {
@@ -81,9 +82,24 @@ export function CatalogMediaGrid({ type }) {
             </div>
           </label>
         </form>
-        <button className="ghost" onClick={refreshFromProvider} disabled={loading || catalogLoading}>
-          <RefreshCw size={18} /> {t("catalog.refreshAnilist")}
-        </button>
+        <label className="catalog-status-filter">
+          {t("catalog.filterStatus")}
+          <select value={statusFilter} onChange={(event) => {
+            const nextStatus = event.target.value;
+            setStatusFilter(nextStatus);
+            loadTypeCatalog(query.trim(), nextStatus, 0);
+          }} disabled={catalogLoading}>
+            <option value="">{t("catalog.allStatuses")}</option>
+            {["RELEASING", "FINISHED", "NOT_YET_RELEASED", "CANCELLED", "HIATUS"].map((value) => (
+              <option key={value} value={value}>{t(`catalog.statuses.${value}`)}</option>
+            ))}
+          </select>
+        </label>
+        {isAdmin && (
+          <button className="ghost" onClick={refreshFromProvider} disabled={loading || catalogLoading}>
+            <RefreshCw size={18} /> {t("catalog.refreshAnilist")}
+          </button>
+        )}
       </section>
 
       <Notice message={status} onClose={clearStatus} />
@@ -121,8 +137,8 @@ export function CatalogMediaGrid({ type }) {
         totalItems={pageData.totalItems}
         totalPages={pageData.totalPages}
         disabled={catalogLoading}
-        onPageChange={(page) => loadTypeCatalog(query.trim(), page)}
-        onSizeChange={(size) => loadTypeCatalog(query.trim(), 0, size)}
+        onPageChange={(page) => loadTypeCatalog(query.trim(), statusFilter, page)}
+        onSizeChange={(size) => loadTypeCatalog(query.trim(), statusFilter, 0, size)}
       />
     </div>
   );

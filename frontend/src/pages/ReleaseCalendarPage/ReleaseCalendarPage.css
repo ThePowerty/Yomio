@@ -101,7 +101,7 @@
 
 .release-calendar-panel {
   min-width: 0;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .release-calendar-toolbar {
@@ -156,6 +156,7 @@
 }
 
 .release-day {
+  position: relative;
   min-width: 0;
   min-height: 104px;
   display: flex;
@@ -167,6 +168,17 @@
   background: #ffffff;
   text-align: left;
 }
+
+.release-tooltip { width: min(250px, 72vw); position: absolute; z-index: 20; left: 50%; bottom: calc(100% + 8px); display: grid; gap: 8px; padding: 11px; border: 1px solid #cdd9dc; border-radius: 8px; color: #263038; background: #fff; box-shadow: 0 18px 44px rgba(31,37,43,.18); text-align: left; opacity: 0; visibility: hidden; pointer-events: none; transform: translate(-50%, 4px); transition: opacity 160ms ease, transform 160ms ease, visibility 160ms; }
+.release-tooltip > strong { padding-bottom: 6px; border-bottom: 1px solid #e1e7e9; font-size: .78rem; }
+.release-tooltip > span { display: grid; gap: 2px; }
+.release-tooltip b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .78rem; }
+.release-tooltip span span { color: #60707a; font-size: .72rem; }
+.release-day:hover .release-tooltip, .release-day:focus-visible .release-tooltip { opacity: 1; visibility: visible; transform: translate(-50%, 0); }
+.release-day:nth-child(7n + 1) .release-tooltip { left: 0; transform: translate(0, 4px); }
+.release-day:nth-child(7n + 1):hover .release-tooltip, .release-day:nth-child(7n + 1):focus-visible .release-tooltip { transform: translate(0, 0); }
+.release-day:nth-child(7n) .release-tooltip { right: 0; left: auto; transform: translate(0, 4px); }
+.release-day:nth-child(7n):hover .release-tooltip, .release-day:nth-child(7n):focus-visible .release-tooltip { transform: translate(0, 0); }
 
 .release-day:hover {
   background: #f2f7f6;
@@ -372,6 +384,7 @@
 }
 
 @media (max-width: 640px) {
+  .release-tooltip { display: none; }
   .release-calendar-intro {
     align-items: flex-start;
     flex-direction: column;

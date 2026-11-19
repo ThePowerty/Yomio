@@ -160,6 +160,7 @@ export function ReleaseCalendarPage({ compact = false }) {
                     onClick={() => selectDay(date)}
                     aria-label={`${dateLabel}. ${t("calendar.releaseCount", { count: dayEvents.length })}`}
                     aria-pressed={isSelected}
+                    aria-describedby={dayEvents.length ? `release-tooltip-${dateKey}` : undefined}
                     aria-current={isToday ? "date" : undefined}
                   >
                     <span className="release-day-number">{date.getDate()}</span>
@@ -171,6 +172,14 @@ export function ReleaseCalendarPage({ compact = false }) {
                       ))}
                       {dayEvents.length > 2 && <span className="release-more">{t("calendar.more", { count: dayEvents.length - 2 })}</span>}
                     </span>
+                    {dayEvents.length > 0 && (
+                      <span className="release-tooltip" role="tooltip" id={`release-tooltip-${dateKey}`}>
+                        <strong>{dateLabel}</strong>
+                        {dayEvents.map((event) => (
+                          <span key={event.id}><b>{event.title}</b><span>{releaseLabel(event)} · {new Intl.DateTimeFormat(locale, { hour: "2-digit", minute: "2-digit" }).format(event.releaseDate)}</span></span>
+                        ))}
+                      </span>
+                    )}
                   </button>
                 );
               })}
