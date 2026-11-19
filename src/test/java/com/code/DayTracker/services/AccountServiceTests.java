@@ -54,4 +54,18 @@ class AccountServiceTests {
         )).isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Email already exists");
     }
+
+    @Test
+    void deletesOnlyTheAuthenticatedAccount() {
+        UserRepository repository = mock(UserRepository.class);
+        JwtService jwtService = mock(JwtService.class);
+        AppUser user = new AppUser("reader", "reader@example.com", "hash", Role.USER);
+        when(repository.findByUsername("reader")).thenReturn(Optional.of(user));
+        AccountService service = new AccountService(repository, jwtService);
+
+        service.deleteAccount("reader");
+
+        verify(repository).delete(user);
+        verify(repository).flush();
+    }
 }

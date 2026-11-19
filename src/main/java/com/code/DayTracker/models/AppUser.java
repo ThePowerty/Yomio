@@ -9,6 +9,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.util.Collection;
+import java.time.Instant;
 import java.util.List;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -34,6 +35,11 @@ public class AppUser implements UserDetails {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20, columnDefinition = "varchar(20) default 'USER'")
     private Role role = Role.USER;
+
+    private Instant policiesAcceptedAt;
+
+    @Column(length = 20)
+    private String policiesVersion;
 
     protected AppUser() {
     }
@@ -61,6 +67,15 @@ public class AppUser implements UserDetails {
     public void updateProfile(String username, String email) {
         this.username = username;
         this.email = email;
+    }
+
+    public void updatePassword(String encodedPassword) {
+        this.password = encodedPassword;
+    }
+
+    public void acceptPolicies(String version) {
+        this.policiesAcceptedAt = Instant.now();
+        this.policiesVersion = version;
     }
 
     @Override

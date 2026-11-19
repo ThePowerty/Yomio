@@ -11,12 +11,15 @@ import com.code.DayTracker.security.JwtService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class AuthService {
+
+    private static final String CURRENT_POLICIES_VERSION = "2026-11-18";
 
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
@@ -38,18 +41,20 @@ public class AuthService {
     @Transactional
     public AuthResponse register(RegisterRequest request) {
         if (userRepository.existsByUsername(request.username())) {
-            throw new IllegalArgumentException("Username already exists");
+            throw new IllegalArgumentException("Unable to create account with these credentials");
         }
-        if (userRepository.existsByEmail(request.email())) {
-            throw new IllegalArgumentException("Email already exists");
+        String normalizedEmail = request.email().trim().toLowerCase(java.util.Locale.ROOT);
+        if (userRepository.existsByEmail(normalizedEmail)) {
+            throw new IllegalArgumentException("Unable to create account with these credentials");
         }
 
         AppUser user = new AppUser(
                 request.username(),
-                request.email(),
+                normalizedEmail,
                 passwordEncoder.encode(request.password()),
-                request.role() == null ? Role.USER : request.role()
+                Role.USER
         );
+        user.acceptPolicies(CURRENT_POLICIES_VERSION);
         AppUser saved = userRepository.save(user);
         return new AuthResponse(jwtService.generateToken(saved), UserResponse.from(saved));
     }
@@ -61,11 +66,18 @@ public class AuthService {
                     new UsernamePasswordAuthenticationToken(request.username(), request.password())
             );
         } catch (AuthenticationException exception) {
-            throw new IllegalArgumentException("Invalid username or password");
+            throw new BadCredentialsException("Invalid username or password");
         }
 
         AppUser user = userRepository.findByUsername(request.username())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid username or password"));
+                .orElseThrow(() -> new BadCredentialsException("Invalid username or password"));
+        return new AuthResponse(jwtService.generateToken(user), UserResponse.from(user));
+    }
+
+    @Transactional(readOnly = true)
+    public AuthResponse refresh(String username) {
+        AppUser user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new BadCredentialsException("Authentication required"));
         return new AuthResponse(jwtService.generateToken(user), UserResponse.from(user));
     }
 }

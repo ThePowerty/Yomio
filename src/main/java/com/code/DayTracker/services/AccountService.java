@@ -38,4 +38,12 @@ public class AccountService {
         AppUser saved = userRepository.save(user);
         return new AuthResponse(jwtService.generateToken(saved), UserResponse.from(saved));
     }
+
+    @Transactional
+    public void deleteAccount(String currentUsername) {
+        AppUser user = userRepository.findByUsername(currentUsername)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        userRepository.delete(user);
+        userRepository.flush();
+    }
 }

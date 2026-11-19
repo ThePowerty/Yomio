@@ -1,6 +1,7 @@
 package com.code.DayTracker.security;
 
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.LinkedHashMap;
@@ -27,6 +28,9 @@ public class JwtService {
             @Value("${app.jwt.secret}") String secret,
             @Value("${app.jwt.expiration-ms}") long expirationMs
     ) {
+        if (secret == null || secret.getBytes(StandardCharsets.UTF_8).length < 32) {
+            throw new IllegalStateException("JWT_SECRET must contain at least 32 bytes");
+        }
         this.secret = secret;
         this.expirationMs = expirationMs;
     }
@@ -38,6 +42,7 @@ public class JwtService {
         payload.put("sub", userDetails.getUsername());
         payload.put("iat", now);
         payload.put("exp", now + expirationMs / 1000);
+        payload.put("ver", credentialVersion(userDetails));
 
         String unsignedToken = encodeJson(header) + "." + encodeJson(payload);
         return unsignedToken + "." + sign(unsignedToken);
@@ -45,6 +50,9 @@ public class JwtService {
 
     public String extractUsername(String token) {
         try {
+            if (!hasValidSignature(token)) {
+                return null;
+            }
             return (String) readPayload(token).get("sub");
         } catch (RuntimeException exception) {
             return null;
@@ -53,10 +61,20 @@ public class JwtService {
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
         String username = extractUsername(token);
-        return username != null
-                && username.equals(userDetails.getUsername())
-                && !isExpired(token)
-                && hasValidSignature(token);
+        if (username == null) {
+            return false;
+        }
+        try {
+            Object tokenVersion = readPayload(token).get("ver");
+            return username.equals(userDetails.getUsername())
+                    && !isExpired(token)
+                    && tokenVersion instanceof String version
+                    && MessageDigest.isEqual(
+                            version.getBytes(StandardCharsets.US_ASCII),
+                            credentialVersion(userDetails).getBytes(StandardCharsets.US_ASCII));
+        } catch (RuntimeException exception) {
+            return false;
+        }
     }
 
     private boolean isExpired(String token) {
@@ -73,7 +91,9 @@ public class JwtService {
             return false;
         }
         String unsignedToken = parts[0] + "." + parts[1];
-        return sign(unsignedToken).equals(parts[2]);
+        byte[] expected = sign(unsignedToken).getBytes(StandardCharsets.US_ASCII);
+        byte[] actual = parts[2].getBytes(StandardCharsets.US_ASCII);
+        return MessageDigest.isEqual(expected, actual);
     }
 
     private Map<String, Object> readPayload(String token) {
@@ -107,5 +127,9 @@ public class JwtService {
         } catch (Exception exception) {
             throw new IllegalStateException("Could not sign JWT", exception);
         }
+    }
+
+    private String credentialVersion(UserDetails userDetails) {
+        return sign("credential:" + userDetails.getPassword());
     }
 }

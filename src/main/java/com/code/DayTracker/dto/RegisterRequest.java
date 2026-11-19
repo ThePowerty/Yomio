@@ -1,9 +1,9 @@
 package com.code.DayTracker.dto;
 
-import com.code.DayTracker.models.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.AssertTrue;
 
 public record RegisterRequest(
         @NotBlank
@@ -19,6 +19,7 @@ public record RegisterRequest(
         @Size(min = 8, max = 100)
         String password,
 
-        Role role
+        @AssertTrue(message = "Privacy policy and legal notice must be accepted")
+        boolean policiesAccepted
 ) {
 }
