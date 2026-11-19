@@ -3,15 +3,15 @@ services:
     image: postgres:16
     container_name: daytracker-postgres
     environment:
-      POSTGRES_DB: tracker
-      POSTGRES_USER: postgre
-      POSTGRES_PASSWORD: "admin"
+      POSTGRES_DB: ${POSTGRES_DB:-tracker}
+      POSTGRES_USER: ${POSTGRES_USER:-yomio}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
     ports:
       - "55432:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgre -d tracker"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-yomio} -d ${POSTGRES_DB:-tracker}"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -23,11 +23,20 @@ services:
       postgres:
         condition: service_healthy
     environment:
-      DB_URL: jdbc:postgresql://postgres:5432/tracker
-      DB_USERNAME: postgre
-      DB_PASSWORD: "admin"
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
-      JWT_SECRET: change-this-secret-in-production-change-this-secret
+      DB_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-tracker}
+      DB_USERNAME: ${POSTGRES_USER:-yomio}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      HIBERNATE_DDL_AUTO: ${HIBERNATE_DDL_AUTO:-update}
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in .env}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:5173}
+      FORWARD_HEADERS_STRATEGY: native
+      PASSWORD_RESET_SMTP_ENABLED: ${PASSWORD_RESET_SMTP_ENABLED:-false}
+      PASSWORD_RESET_FROM: ${PASSWORD_RESET_FROM:-}
+      PASSWORD_RESET_BASE_URL: ${PASSWORD_RESET_BASE_URL:-http://localhost:5173/reset-password}
+      SPRING_MAIL_HOST: ${SPRING_MAIL_HOST:-}
+      SPRING_MAIL_PORT: ${SPRING_MAIL_PORT:-587}
+      SPRING_MAIL_USERNAME: ${SPRING_MAIL_USERNAME:-}
+      SPRING_MAIL_PASSWORD: ${SPRING_MAIL_PASSWORD:-}
       CATALOG_REFRESH_ON_STARTUP: "true"
       CATALOG_REFRESH_PAGES: "2"
       CATALOG_ANIME_REFRESH_PAGES: "10"
@@ -36,8 +45,8 @@ services:
       ANILIST_MIN_INTERVAL_MS: "2100"
       ANILIST_RATE_LIMIT_RETRIES: "2"
       KITSU_REFRESH_PAGES: "3"
-    ports:
-      - "8080:8080"
+    expose:
+      - "8080"
     restart: unless-stopped
 
   frontend:

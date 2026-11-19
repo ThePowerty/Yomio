@@ -1,14 +1,51 @@
 HELP.md
-target/
-.m2/
-frontend/node_modules/
-frontend/.npm-cache/
-frontend/.npm-global/
-frontend/dist/
-frontend/*.log
-.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
+
+### Java / Maven ###
+/target/
+**/target/
+/.m2/
+*.class
+hs_err_pid*
+replay_pid*
+
+### Frontend / Node ###
+/frontend/node_modules/
+/frontend/dist/
+/frontend/.vite/
+/frontend/.npm-cache/
+/frontend/.npm-global/
+/frontend/coverage/
+/frontend/playwright-report/
+/frontend/test-results/
+/frontend/.eslintcache
+/frontend/.stylelintcache
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+### Local configuration and secrets ###
+.env
+.env.*
+!.env.example
+*.local
+application-local.properties
+application-local.yml
+application-local.yaml
+
+### Logs and temporary files ###
+*.log
+/logs/
+/backups/
+*.tmp
+*.swp
+*~
+/premium-audit.json
+
+### Operating systems ###
+.DS_Store
+Thumbs.db
+Desktop.ini
 
 ### STS ###
 .apt_generated
@@ -20,7 +57,7 @@ frontend/*.log
 .sts4-cache
 
 ### IntelliJ IDEA ###
-.idea
+/.idea/
 *.iws
 *.iml
 *.ipr
@@ -31,9 +68,8 @@ frontend/*.log
 /dist/
 /nbdist/
 /.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
+/build/
 
 ### VS Code ###
-.vscode/
+/.vscode/
+/.fleet/
