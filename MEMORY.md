@@ -47,9 +47,9 @@
 - No desbloquear escritura con `revealFuture`; solo el progreso concede permisos.
 
 ## Validación más reciente
+- 2026-11-19: cambios acumulados revisados sin secretos y consolidados por responsabilidad; `mvnw.cmd test` pasa 35/35 y `npm run build` finaliza correctamente.
 - 2026-11-19: landing y 404 verificadas en Chromium de escritorio y 390 px; CTA móvil no duplica el CTA inicial, 5 FAQs funcionan con teclado, metadatos/noindex correctos y consola sin errores.
 - 2026-11-19: login GSAP mantiene dos ciclos: marca libro→páginas→Y y fondo con ruta libro/pantalla/recomendación, tarjetas y progreso. En reducido continúan mediante opacidad, sin desplazamientos ni escalas. Verificados ciclos persistentes, consola limpia y composición a 390 px. Carrusel reducido mantiene fundido manual de 180 ms.
 - Auditor premium estricto se bloquea sin salida al escanear y se interrumpió; no confundirlo con una auditoría superada.
-- `designmd lint DESIGN.md`: 0 errores, 10 avisos heredados de tokens/subtokens.
-- `npm audit --omit=dev`: 0; auditoría completa: 4 altas solo dev. Backup restaurado en `tracker_restore_test` con consulta correcta.
+- `designmd lint`: 0 errores/10 avisos heredados; `npm audit --omit=dev`: 0 (4 altas solo dev). Backup restaurado correctamente.
 - Backend local verificado: Spring inicia en ~5 s y health responde 200; proceso detenido a petición del usuario y puerto 8080 libre.
