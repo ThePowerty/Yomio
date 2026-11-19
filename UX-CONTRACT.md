@@ -51,6 +51,8 @@ Catalog and recommendation grids use bounded pagination in complete visual rows.
 | Save note/comment | Story workspace | Disabled action | Stay in active tab | Inline status | Preserve input |
 | Reveal future | Named warning action | None | Same conversation | Persistent revealed state | Reset when point changes |
 | Browse releases | Calendar navigation | Stable reserved calendar | Stay in selected month/day | Inline agenda | Retry through shared reload |
+| Filter catalog | Publication-status select | Stable reserved grid | First result page | Empty/no-results state | Keep query and selected status |
+| Contact administration | Contact form | Disabled submit | Stay; reset fields | `Notice` | Preserve values and retry |
 | Enter public product page | Direct visit to `/` while signed out | Complete first fold | Auth/register or internal section | Visible destination | Custom 404 for unknown routes |
 | Choose analytics | Consent banner when GA is configured | No blocking state | Stay on current route | Banner closes | Reopen requires clearing saved preference |
 | Renew session | Expiry dialog | Renewal action busy | Stay on current route | Dialog closes after new JWT | Expired/invalid JWT returns to auth with persistent notice |
@@ -62,13 +64,19 @@ The sidebar becomes an overlay below 1040px. The application owns one content sc
 
 The public root owns a sticky header, meaningful internal anchors and an above-fold primary CTA. Below 640px, a fixed mobile CTA becomes visible only once the hero CTA is outside the viewport. Unknown client routes render the branded 404 with recovery links and `noindex,nofollow`; public privacy and legal routes remain reachable without authentication.
 
-The release calendar is a read-only monthly display, not a date picker. It contains only active tracked titles whose catalog status is `RELEASING` and whose source provides `nextReleaseAt`; completed and dropped entries are excluded. Dates and times use the active locale and the browser's local timezone. The UI never extrapolates later chapters from a single confirmed date.
+The release calendar is a read-only monthly display, not a date picker. It contains only active tracked titles whose catalog status is `RELEASING` and whose source provides `nextReleaseAt`; completed and dropped entries are excluded. Dates and times use the active locale and the browser's local timezone. The UI never extrapolates later chapters from a single confirmed date. Days with releases expose the title, next episode/chapter and local time in a non-interactive tooltip on pointer hover and keyboard focus; the selected-day agenda is the persistent touch alternative.
 
 Authentication uses a continuous decorative SVG loop of closed book, open pages and final Yomio mark. A second ambient tracking route continuously connects reading, viewing and recommendation nodes behind it. Neither layer delays or covers the form. Reduced-motion users retain the continuous state indication through slow opacity-only crossfades and pulses; page movement, translation, scaling and route travel are removed.
 
 ## Async, validation and permission
 
 Mutations are pessimistic and duplicate submits are disabled. JWT access tokens last two hours by default. Five minutes before expiry, a modal offers explicit renewal through the authenticated refresh endpoint; expiry or an authenticated 401 clears local credentials across tabs and returns to authentication with a persistent notice. The server does not silently slide the session. Backend derives the owner from authentication; the client never supplies a user ID. Future community content is absent from default API responses, not merely blurred. Explicit reveal grants read access only. Notes and ratings remain owner-only and future records are excluded after progress reduction.
+
+Catalog reads remain available to regular users, but every user-triggered catalog mutation requires `ADMIN`: full or typed refreshes, release-progress refreshes and searches with `importMissing=true`. Non-admin interfaces omit refresh controls and search only the local catalog; scheduled server refreshes remain an internal operation.
+
+All four catalog routes share the same server-side publication-status filter. Changing it returns to page one and composes with the current text query without mutating catalog data.
+
+`Contact us` is the final sidebar destination for authenticated users. Submissions require a category, subject and message, derive the sender from the JWT and warn against including secrets. Messages are visible only in the admin inbox, unresolved items sort first, and account deletion removes the sender's contact messages through the documented cascade.
 
 For catalog titles with status `RELEASING`, progress forms expose `UP_TO_DATE` instead of `COMPLETED` and bind it to the latest confirmed release. Once the catalog status becomes `FINISHED`, API responses normalize an up-to-date entry to completed when it has reached the final unit.
 

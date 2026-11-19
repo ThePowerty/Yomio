@@ -40,6 +40,7 @@ const exactMetadata = {
   "/catalog/manhwa": { title: "Catálogo de manhwa | Yomio", description: "Descubre manhwa y organiza cada capítulo leído." },
   "/catalog/movie": { title: "Catálogo de películas | Yomio", description: "Organiza películas vistas, pendientes y recomendaciones." },
   "/recommendations": { title: "Recomendaciones personales | Yomio", description: "Encuentra nuevas historias basadas en tu biblioteca y preferencias." },
+  "/contact": { title: "Contáctanos | Yomio", description: "Envía comentarios, quejas o propuestas de mejora al equipo de administración de Yomio." },
   "/admin": { title: "Administración | Yomio", description: "Herramientas restringidas de administración de Yomio." }
 };
 

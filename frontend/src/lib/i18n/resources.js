@@ -66,7 +66,8 @@ export const resources = {
           manhwaCatalog: "Catalogo manhwas",
           movieCatalog: "Peliculas",
           recommendations: "Recomendaciones",
-          admin: "Admin"
+          admin: "Admin",
+          contact: "Contáctanos"
         },
         titles: {
           home: "Inicio",
@@ -80,7 +81,8 @@ export const resources = {
           recommendations: "Recomendaciones",
           chapterRatings: "Valoraciones",
           storyWorkspace: "Herramientas de la obra",
-          admin: "Admin"
+          admin: "Admin",
+          contact: "Contáctanos"
         }
       },
       account: {
@@ -264,7 +266,18 @@ export const resources = {
         moviePlaceholder: "El viaje de Chihiro, Your Name...",
         viewDetails: "Ver detalles",
         refreshAnilist: "Actualizar catalogo",
-        empty: "No hay resultados en el catalogo."
+        empty: "No hay resultados en el catalogo.",
+        filterStatus: "Estado de publicación",
+        allStatuses: "Todos los estados",
+        statuses: { RELEASING: "En emisión", FINISHED: "Finalizado", NOT_YET_RELEASED: "Próximamente", CANCELLED: "Cancelado", HIATUS: "En pausa" }
+      },
+      contact: {
+        eyebrow: "Contacto",
+        description: "Envía un comentario, una queja o una propuesta de mejora al equipo de administración.",
+        category: "Tipo de mensaje", subject: "Asunto", message: "Mensaje",
+        categories: { COMMENT: "Comentario", COMPLAINT: "Queja", IMPROVEMENT: "Mejora" },
+        privacyHint: "No incluyas contraseñas, tokens ni otros datos sensibles.",
+        send: "Enviar mensaje", sending: "Enviando…", sent: "Mensaje enviado al equipo de administración.", required: "Completa el asunto y el mensaje."
       },
       detail: {
         backToCatalog: "Volver al catalogo",
@@ -330,7 +343,8 @@ export const resources = {
         totalPersonal: "Total personal",
         eyebrow: "Admin",
         title: "Vista administrativa",
-        restricted: "La pagina queda visible solo para usuarios con rol ADMIN."
+        restricted: "La pagina queda visible solo para usuarios con rol ADMIN.",
+        inbox: "Bandeja de contacto", contactMessages: "Mensajes recibidos", noMessages: "Todavía no hay mensajes.", markResolved: "Marcar como resuelto"
       },
       status: {
         catalogUpdated: "Catalogo actualizado desde fuentes publicas",
@@ -410,7 +424,8 @@ export const resources = {
           manhwaCatalog: "Manhwa catalog",
           movieCatalog: "Movies",
           recommendations: "Recommendations",
-          admin: "Admin"
+          admin: "Admin",
+          contact: "Contact us"
         },
         titles: {
           home: "Home",
@@ -424,7 +439,8 @@ export const resources = {
           recommendations: "Recommendations",
           chapterRatings: "Ratings",
           storyWorkspace: "Title tools",
-          admin: "Admin"
+          admin: "Admin",
+          contact: "Contact us"
         }
       },
       account: {
@@ -608,7 +624,18 @@ export const resources = {
         moviePlaceholder: "Spirited Away, Your Name...",
         viewDetails: "View details",
         refreshAnilist: "Update catalog",
-        empty: "No catalog results."
+        empty: "No catalog results.",
+        filterStatus: "Publication status",
+        allStatuses: "All statuses",
+        statuses: { RELEASING: "Releasing", FINISHED: "Finished", NOT_YET_RELEASED: "Upcoming", CANCELLED: "Cancelled", HIATUS: "On hiatus" }
+      },
+      contact: {
+        eyebrow: "Contact",
+        description: "Send a comment, complaint or improvement idea to the administration team.",
+        category: "Message type", subject: "Subject", message: "Message",
+        categories: { COMMENT: "Comment", COMPLAINT: "Complaint", IMPROVEMENT: "Improvement" },
+        privacyHint: "Do not include passwords, tokens or other sensitive data.",
+        send: "Send message", sending: "Sending…", sent: "Message sent to the administration team.", required: "Complete the subject and message."
       },
       detail: {
         backToCatalog: "Back to catalog",
@@ -674,7 +701,8 @@ export const resources = {
         totalPersonal: "Personal total",
         eyebrow: "Admin",
         title: "Administrative view",
-        restricted: "This page is visible only to users with the ADMIN role."
+        restricted: "This page is visible only to users with the ADMIN role.",
+        inbox: "Contact inbox", contactMessages: "Received messages", noMessages: "There are no messages yet.", markResolved: "Mark as resolved"
       },
       status: {
         catalogUpdated: "Catalog updated from public sources",

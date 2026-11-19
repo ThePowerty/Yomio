@@ -17,7 +17,7 @@ export function LegalPage() {
       <article className="legal-document">
         <span className="eyebrow"><ShieldCheck size={15} /> Información pública</span>
         <h1>{privacy ? "Política de privacidad" : "Aviso legal"}</h1>
-        <p className="legal-updated">Última actualización: 18 de noviembre de 2026</p>
+        <p className="legal-updated">Última actualización: 19 de noviembre de 2026</p>
         {privacy ? <Privacy /> : <Legal />}
       </article>
     </main>
@@ -27,7 +27,7 @@ export function LegalPage() {
 function Privacy() {
   return <>
     <section><h2>1. Responsable</h2><p>El responsable del tratamiento es <strong>{owner}</strong>, con domicilio en {address}. Contacto de privacidad: <strong>{email}</strong>.</p><p className="legal-warning">Estos datos deben completarse antes de publicar Yomio o enviar la aplicación a una tienda.</p></section>
-    <section><h2>2. Datos que trata Yomio</h2><p>Al crear una cuenta tratamos nombre de usuario, correo electrónico y una contraseña almacenada únicamente como hash seguro. También guardamos tu biblioteca, progreso, valoraciones, notas, lista de pendientes, preferencias y acciones comunitarias.</p><p>Los registros técnicos pueden incluir identificadores de petición, fecha, resultado y datos de red imprescindibles para seguridad, límites de uso y diagnóstico. No registramos contraseñas ni tokens.</p></section>
+    <section><h2>2. Datos que trata Yomio</h2><p>Al crear una cuenta tratamos nombre de usuario, correo electrónico y una contraseña almacenada únicamente como hash seguro. También guardamos tu biblioteca, progreso, valoraciones, notas, lista de pendientes, preferencias, acciones comunitarias y los mensajes que envíes al equipo desde Contacto.</p><p>Los registros técnicos pueden incluir identificadores de petición, fecha, resultado y datos de red imprescindibles para seguridad, límites de uso y diagnóstico. No registramos contraseñas ni tokens.</p></section>
     <section><h2>3. Finalidad y base jurídica</h2><p>Usamos estos datos para prestar el servicio solicitado, autenticarte, sincronizar tu seguimiento, recomendar contenido, prevenir abusos y resolver errores.</p><p>Google Analytics permanece desactivado hasta que aceptas la analítica opcional. Si se configura, registra páginas visitadas y eventos técnicos permitidos de onboarding, sin enviar nombre de usuario, correo, búsquedas, notas, tokens ni texto privado. Puedes rechazarla y seguir utilizando Yomio.</p></section>
     <section><h2>4. Proveedores y fuentes externas</h2><p>Yomio consulta fuentes públicas como AniList, Kitsu y MangaDex para metadatos, fechas y portadas. Esos servicios pueden recibir la dirección IP de la infraestructura de Yomio; las imágenes remotas pueden ser solicitadas por tu dispositivo según la configuración de despliegue.</p></section>
     <section><h2>5. Conservación, seguridad y derechos</h2><p>Conservamos la cuenta mientras permanezca activa y los registros técnicos durante el tiempo estrictamente necesario para seguridad. Puedes solicitar acceso, rectificación, supresión, limitación, oposición o portabilidad escribiendo al contacto indicado. Desde los ajustes puedes eliminar definitivamente la cuenta y sus datos asociados; esta acción no se puede deshacer.</p></section>
