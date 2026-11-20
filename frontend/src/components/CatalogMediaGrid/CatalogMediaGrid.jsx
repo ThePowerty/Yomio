@@ -1,4 +1,4 @@
-import { Plus, RefreshCw, Search } from "lucide-react";
+import { ChevronDown, Plus, RefreshCw, Search, SlidersHorizontal, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -16,6 +16,8 @@ export function CatalogMediaGrid({ type }) {
   const [catalogLoading, setCatalogLoading] = useState(false);
   const [columns, setColumns] = useState(0);
   const gridRef = useRef(null);
+  const searchInputRef = useRef(null);
+  const catalogRequestRef = useRef(0);
   const { token, isAdmin } = useAuth();
   const { loadCatalogPage, refreshCatalog, status, clearStatus, loading } = useTracker();
   const navigate = useNavigate();
@@ -44,10 +46,14 @@ export function CatalogMediaGrid({ type }) {
   }, [columns]);
 
   async function loadTypeCatalog(searchTerm, status = statusFilter, page = 0, size = pageData.size) {
+    const requestId = catalogRequestRef.current + 1;
+    catalogRequestRef.current = requestId;
     setCatalogLoading(true);
     const data = await loadCatalogPage(searchTerm, type, status, page, size);
-    setPageData(data);
-    setCatalogLoading(false);
+    if (requestId === catalogRequestRef.current) {
+      setPageData(data);
+      setCatalogLoading(false);
+    }
   }
 
   async function submitSearch(event) {
@@ -60,6 +66,12 @@ export function CatalogMediaGrid({ type }) {
     await loadTypeCatalog(query.trim(), statusFilter, 0);
   }
 
+  async function clearSearch() {
+    setQuery("");
+    searchInputRef.current?.focus();
+    await loadTypeCatalog("", statusFilter, 0);
+  }
+
   function useMedia(media) {
     navigate(`/catalog/${type.toLowerCase()}/${media.id}`, { state: { media } });
   }
@@ -69,13 +81,21 @@ export function CatalogMediaGrid({ type }) {
       <section className="panel catalog-toolbar">
         <form noValidate className="catalog-search" onSubmit={submitSearch}>
           <label>
-            {t("catalog.search", { type: title })}
+            <span className="catalog-field-label"><Search size={14} aria-hidden="true" />{t("catalog.search", { type: title })}</span>
             <div className="catalog-search-row">
-              <input
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-                placeholder={type === "ANIME" ? t("catalog.animePlaceholder") : type === "MOVIE" ? t("catalog.moviePlaceholder") : type === "MANHWA" ? t("catalog.manhwaPlaceholder") : t("catalog.mangaPlaceholder")}
-              />
+              <div className="catalog-search-field">
+                <input
+                  ref={searchInputRef}
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
+                  placeholder={type === "ANIME" ? t("catalog.animePlaceholder") : type === "MOVIE" ? t("catalog.moviePlaceholder") : type === "MANHWA" ? t("catalog.manhwaPlaceholder") : t("catalog.mangaPlaceholder")}
+                />
+                {query && (
+                  <button type="button" className="catalog-search-clear" onClick={clearSearch} aria-label={t("catalog.clearSearch")}>
+                    <X size={16} aria-hidden="true" />
+                  </button>
+                )}
+              </div>
               <button className="primary" disabled={catalogLoading}>
                 <Search size={18} /> {t("common.search")}
               </button>
@@ -83,17 +103,20 @@ export function CatalogMediaGrid({ type }) {
           </label>
         </form>
         <label className="catalog-status-filter">
-          {t("catalog.filterStatus")}
-          <select value={statusFilter} onChange={(event) => {
-            const nextStatus = event.target.value;
-            setStatusFilter(nextStatus);
-            loadTypeCatalog(query.trim(), nextStatus, 0);
-          }} disabled={catalogLoading}>
-            <option value="">{t("catalog.allStatuses")}</option>
-            {["RELEASING", "FINISHED", "NOT_YET_RELEASED", "CANCELLED", "HIATUS"].map((value) => (
-              <option key={value} value={value}>{t(`catalog.statuses.${value}`)}</option>
-            ))}
-          </select>
+          <span className="catalog-field-label"><SlidersHorizontal size={14} aria-hidden="true" />{t("catalog.filterStatus")}</span>
+          <span className="catalog-select-shell">
+            <select value={statusFilter} onChange={(event) => {
+              const nextStatus = event.target.value;
+              setStatusFilter(nextStatus);
+              loadTypeCatalog(query.trim(), nextStatus, 0);
+            }} disabled={catalogLoading}>
+              <option value="">{t("catalog.allStatuses")}</option>
+              {["RELEASING", "FINISHED", "NOT_YET_RELEASED", "CANCELLED", "HIATUS"].map((value) => (
+                <option key={value} value={value}>{t(`catalog.statuses.${value}`)}</option>
+              ))}
+            </select>
+            <ChevronDown size={17} aria-hidden="true" />
+          </span>
         </label>
         {isAdmin && (
           <button className="ghost" onClick={refreshFromProvider} disabled={loading || catalogLoading}>

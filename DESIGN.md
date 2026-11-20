@@ -12,6 +12,10 @@ colors:
   border: "#DFE5E8"
   warning: "#FFF8E6"
   danger: "#A33A2F"
+  darkCanvas: "#0F171D"
+  darkSurface: "#18232A"
+  darkBorder: "#354750"
+  darkText: "#EEF5F7"
 typography:
   sans:
     fontFamily: "DM Sans Variable, DM Sans, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif"
@@ -40,7 +44,7 @@ Yomio feels like a well-kept reading journal: quiet paper-like surfaces, an ink-
 
 ## Colors
 
-Teal is reserved for primary actions, progress and safe/selected states. Warning cream protects spoiler boundaries, while red is limited to destructive or reporting actions. White surfaces sit on the cool gray canvas with visible borders; text never relies on color alone.
+Teal is reserved for primary actions, progress and safe/selected states. Warning cream protects spoiler boundaries, while red is limited to destructive or reporting actions. White surfaces sit on the cool gray canvas with visible borders; text never relies on color alone. Dark mode remaps the same semantic hierarchy onto petroleum canvas `#0F171D`, raised surface `#18232A`, border `#354750` and text `#EEF5F7`; it does not invert media or change intent colors. Catalog routes may use sky `#8EC5DD`, coral `#E35D7D` and mint `#9CE5D3` as low-area expressive accents: coral marks action energy, sky marks filters and mint ties the atmosphere back to Yomio. Runtime CSS owns these catalog-specific values. They never replace semantic success, warning or danger colors.
 
 ## Typography
 
@@ -48,9 +52,13 @@ DM Sans is bundled locally and owns headings, controls, navigation and body copy
 
 ## Layout
 
-The desktop shell uses a collapsible rail and a single owned content scroller. Panels use a 16–18px rhythm and collapse to one column below 760px. Catalog pagination stays row-complete; story tools keep their selector and tabs visible before content. Loading, empty, locked and error states reserve usable space.
+The desktop shell uses a collapsible rail and a single owned content scroller. The authenticated content canvas uses the supplied transparent manga-corner artwork: the pale book-and-moon composition in light mode and the blue petroleum drawing in dark mode. Artwork stays decorative, centered and cover-sized behind readable surfaces. Panels use a 16–18px rhythm and collapse to one column below 760px. Catalog pagination stays row-complete; story tools keep their selector and tabs visible before content. Loading, empty, locked and error states reserve usable space.
 
 The unauthenticated root is a public product page, while the authenticated root remains the personal dashboard. Its pre-scroll composition pairs a petroleum hero statement with the product's progress-horizon card; internal anchors lead to workflow, illustrative use cases, FAQs and acknowledgements. On narrow screens the persistent CTA appears only after the primary hero CTA leaves view, so the two never compete.
+
+Administration uses an operational-ledger layout: a restrained status rail, four compact measures, a semantic account table and the contact queue. It keeps the same paper surfaces and teal hierarchy as the personal product, while denser rows and stable table framing support scanning without turning the route into a separate visual system.
+
+Account rows expose compact, always-visible progress and role actions. Progress opens a bounded aggregate summary split into reading and viewing; role changes use the canonical dialog, native select and an explicit confirmation step. Dense row actions remain flat and quiet so the table stays scannable.
 
 ## Elevation & Depth
 
@@ -62,7 +70,9 @@ Controls and panels use 6–10px radii. Pills are reserved for media type and st
 
 ## Components
 
-All actions use native buttons or links with hover, focus-visible, disabled and busy states. Forms own validation, use persistent labels and non-resizable textareas. Spoiler locks show the reason and require a named reveal action. Lucide is the sole icon family; icons supplement text except for universally understood, accessible icon buttons. Most state motion is 180ms; the branded authentication sequence lasts about 800ms and recommendation transitions last about 500ms. Reduced-motion preferences remove translation, scaling, staggering, autoplay and continuous movement; essential state changes may retain a short opacity-only dissolve of at most 240ms.
+All actions use native buttons or links with hover, focus-visible, disabled and busy states. Primary, secondary and icon actions across public and authenticated routes share the manga-control signature introduced by the catalog: a two-pixel ink frame, compact offset shadow, squared 3px corners and restrained coral/sky cel accent. Dense selectors, calendar cells, pagination dots and menu rows remain flat so repeated controls do not become visual noise. Forms own validation, use persistent labels and non-resizable textareas. Spoiler locks show the reason and require a named reveal action. Lucide is the sole icon family; icons supplement text except for universally understood, accessible icon buttons. The authenticated top bar owns the sun/moon theme toggle; the choice persists locally and otherwise follows the system preference. Theme changes remap semantic variables rather than duplicating component rules. Most state motion is 180ms; the branded authentication sequence lasts about 800ms and recommendation transitions last about 500ms. Reduced-motion preferences remove translation, scaling, staggering, autoplay and continuous movement; essential state changes may retain a short opacity-only dissolve of at most 240ms.
+
+Catalog controls use a restrained manga-panel treatment: warm paper, a dark two-pixel ink frame, a compact offset shadow and one low-contrast halftone corner. Their shared action-button treatment now belongs to the whole product: coral marks primary energy and sky marks utility actions while retaining the semantic teal hierarchy. The page canvas and navigation rail keep the shared solid application treatment without route-specific blur. The native select remains the canonical dropdown, so its platform-owned open popup is accepted even though only the closed trigger inherits this treatment.
 
 Official brand assets live in `frontend/public`: the light wordmark is used on the ink-dark navigation rail, the dark wordmark belongs on light surfaces, and the standalone mark identifies collapsed or favicon-sized contexts. Product icons remain Lucide; the Yomio mark is identity, not an action icon.
 

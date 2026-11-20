@@ -50,7 +50,7 @@ export function HomePage() {
         </section>
 
         <section className="home-content-grid">
-          <div className="panel">
+          <div className="panel home-tracking-panel">
           <div className="panel-header">
             <div>
               <span className="eyebrow">{t("home.trackingEyebrow")}</span>
@@ -67,7 +67,7 @@ export function HomePage() {
               <p>{t("home.noTracking")}</p>
             </div>
           ) : (
-            <div className="list">
+            <div className="list home-tracking-list">
               {recentItems.map((item) => (
                 <TrackCard key={item.id} item={item} onEdit={openEditor} />
               ))}
@@ -75,7 +75,7 @@ export function HomePage() {
           )}
           </div>
 
-          <div className="panel">
+          <div className="panel home-recommendations-panel">
           <div className="panel-header">
             <div>
               <span className="eyebrow">{t("home.ideas")}</span>

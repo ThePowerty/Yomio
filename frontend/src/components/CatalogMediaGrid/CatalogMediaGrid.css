@@ -1,25 +1,235 @@
 .catalog-page {
+  position: relative;
   display: grid;
   gap: 16px;
 }
 
 .catalog-toolbar {
+  position: relative;
+  isolation: isolate;
   display: flex;
   align-items: end;
   justify-content: space-between;
-  gap: 16px;
+  gap: 18px;
+  margin: 0 6px 6px 0;
+  padding: 18px;
+  overflow: hidden;
+  border: 2px solid #263038;
+  border-radius: 4px;
+  background: rgba(255, 254, 250, .9);
+  box-shadow: 6px 6px 0 #263038, 0 24px 60px rgba(62, 91, 105, .12);
+  backdrop-filter: blur(18px) saturate(108%);
+}
+
+.catalog-toolbar::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0 0 auto auto;
+  width: 190px;
+  height: 100%;
+  opacity: .15;
+  background-image: radial-gradient(circle, #263038 1.2px, transparent 1.35px);
+  background-size: 8px 8px;
+  mask-image: linear-gradient(135deg, transparent 10%, #000 92%);
+}
+
+.catalog-toolbar::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  right: -34px;
+  bottom: -64px;
+  width: 170px;
+  height: 112px;
+  border: 2px solid rgba(38, 48, 56, .28);
+  transform: rotate(-12deg);
+  background: rgba(232, 237, 240, .58);
+}
+
+.catalog-toolbar > * {
+  position: relative;
+  z-index: 1;
+}
+
+.catalog-toolbar label {
+  color: #263038;
+  font-size: .77rem;
+  font-weight: 700;
+  letter-spacing: .055em;
+  text-transform: uppercase;
+}
+
+.catalog-field-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.catalog-field-label svg {
+  color: var(--color-anime-coral);
+  stroke-width: 2.4;
 }
 
 .catalog-search {
   flex: 1;
 }
 
-.catalog-status-filter { min-width: 190px; }
+.catalog-status-filter { min-width: 206px; }
 
 .catalog-search-row {
   display: grid;
   grid-template-columns: 1fr auto;
   gap: 10px;
+}
+
+.catalog-search-field {
+  position: relative;
+  min-width: 0;
+}
+
+.catalog-search-field input,
+.catalog-toolbar select {
+  min-height: 44px;
+  border: 2px solid #9eaaae;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, .94);
+}
+
+.catalog-select-shell {
+  position: relative;
+  display: block;
+}
+
+.catalog-select-shell select {
+  appearance: none;
+  padding-right: 42px;
+  cursor: pointer;
+}
+
+.catalog-select-shell > svg {
+  position: absolute;
+  top: 50%;
+  right: 13px;
+  color: #263038;
+  pointer-events: none;
+  transform: translateY(-50%);
+}
+
+.catalog-select-shell::before {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  inset: 6px auto 6px 6px;
+  width: 4px;
+  border-radius: 2px;
+  background: var(--color-anime-sky);
+  pointer-events: none;
+}
+
+.catalog-select-shell select {
+  padding-left: 18px;
+}
+
+.catalog-search-field input {
+  padding-right: 42px;
+}
+
+.catalog-search-field input:hover,
+.catalog-toolbar select:hover {
+  border-color: #60707a;
+}
+
+.catalog-search-field input:focus,
+.catalog-toolbar select:focus {
+  border-color: #44736b;
+  box-shadow: 3px 3px 0 rgba(68, 115, 107, .2);
+}
+
+.catalog-search-clear {
+  position: absolute;
+  top: 50%;
+  right: 7px;
+  width: 30px;
+  height: 30px;
+  display: inline-grid;
+  place-items: center;
+  padding: 0;
+  border-radius: 3px;
+  background: transparent;
+  color: #52616b;
+  transform: translateY(-50%);
+}
+
+.catalog-search-clear:hover,
+.catalog-search-clear:focus-visible {
+  background: #e8edf0;
+  color: #1f252b;
+  outline: 2px solid #44736b;
+  outline-offset: 1px;
+}
+
+.catalog-toolbar .primary,
+.catalog-toolbar .ghost {
+  position: relative;
+  isolation: isolate;
+  min-height: 44px;
+  overflow: hidden;
+  border: 2px solid #263038;
+  border-radius: 2px;
+  box-shadow: 3px 3px 0 rgba(38, 48, 56, .22);
+  transition: transform 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
+}
+
+.catalog-toolbar .primary {
+  padding-inline: 17px 21px;
+}
+
+.catalog-toolbar .ghost {
+  background: rgba(255, 255, 255, .82);
+}
+
+.catalog-toolbar .primary::after,
+.catalog-toolbar .ghost::after,
+.catalog-detail-button::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: -12px;
+  right: -9px;
+  width: 20px;
+  height: calc(100% + 24px);
+  background: var(--color-anime-coral);
+  transform: rotate(14deg);
+  transition: width 150ms ease;
+}
+
+.catalog-toolbar .ghost::after {
+  background: var(--color-anime-sky);
+}
+
+.catalog-toolbar .primary:hover::after,
+.catalog-toolbar .ghost:hover::after,
+.catalog-detail-button:hover::after {
+  width: 26px;
+}
+
+.catalog-toolbar .primary:hover:not(:disabled),
+.catalog-toolbar .ghost:hover:not(:disabled) {
+  transform: translate(-1px, -1px);
+  box-shadow: 5px 5px 0 rgba(38, 48, 56, .22);
+}
+
+.catalog-toolbar .primary:active:not(:disabled),
+.catalog-toolbar .ghost:active:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 rgba(38, 48, 56, .22);
+}
+
+.catalog-toolbar .primary:focus-visible,
+.catalog-toolbar .ghost:focus-visible {
+  outline: 3px solid rgba(68, 115, 107, .3);
+  outline-offset: 2px;
 }
 
 .catalog-grid {
@@ -100,6 +310,9 @@
 }
 
 .catalog-detail-button {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
   min-height: 32px;
   width: fit-content;
   margin-top: 2px;
@@ -116,8 +329,9 @@
   padding: 10px 14px;
   border: 1px solid #dfe5e8;
   border-radius: 8px;
-  background: #ffffff;
+  background: rgba(255, 255, 255, .78);
   box-shadow: 0 10px 26px rgba(31, 37, 43, 0.06);
+  backdrop-filter: blur(16px);
 }
 
 .catalog-pagination-summary {
@@ -148,6 +362,15 @@
   color: #fff;
 }
 
+.catalog-pagination-pages button.active {
+  box-shadow: inset 0 -3px 0 var(--color-anime-coral);
+}
+
+.catalog-page-size select {
+  border: 1px solid rgba(68, 115, 107, .38);
+  background: rgba(255, 255, 255, .88);
+}
+
 .pagination-ellipsis { padding: 0 4px; color: #7c8b93; }
 .catalog-page-size { grid-template-columns: auto 74px; align-items: center; justify-self: end; }
 .catalog-page-size select { padding: 7px 9px; }
@@ -166,6 +389,8 @@
 
   .catalog-toolbar {
     display: grid;
+    margin-right: 4px;
+    box-shadow: 4px 4px 0 #263038;
   }
 
   .catalog-status-filter { min-width: 0; }
@@ -177,6 +402,16 @@
   }
 
   .catalog-pagination-pages { max-width: 100%; overflow-x: auto; }
+}
+
+@media (prefers-contrast: more) {
+  .catalog-toolbar,
+  .catalog-toolbar .primary,
+  .catalog-toolbar .ghost,
+  .catalog-search-field input,
+  .catalog-toolbar select {
+    border-color: #11181d;
+  }
 }
 
 @media (hover: none) {

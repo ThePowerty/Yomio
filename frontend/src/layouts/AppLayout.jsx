@@ -1,4 +1,4 @@
-import { Bookmark, BookOpen, CalendarDays, ChevronDown, ClipboardList, Film, Home, Languages, Library, LogOut, Mail, Menu, MonitorPlay, PanelLeftClose, PanelLeftOpen, RefreshCw, Settings, Shield, Sparkles, UserRound } from "lucide-react";
+import { Bookmark, BookOpen, CalendarDays, ChevronDown, ClipboardList, Film, Home, Languages, Library, LogOut, Mail, Menu, MonitorPlay, Moon, PanelLeftClose, PanelLeftOpen, RefreshCw, Settings, Shield, Sparkles, Sun, UserRound } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
@@ -21,6 +21,20 @@ const titlesByPath = {
   "/contact": "layout.titles.contact"
 };
 
+const THEME_STORAGE_KEY = "daytracker_theme";
+
+function getInitialTheme() {
+  try {
+    const storedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+    if (storedTheme === "light" || storedTheme === "dark") {
+      return storedTheme;
+    }
+  } catch {
+    // The system preference remains a safe fallback when storage is unavailable.
+  }
+  return window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+}
+
 export function AppLayout({ children }) {
   return (
     <TrackerProvider>
@@ -39,6 +53,7 @@ function AppShell({ children }) {
   const [profileOpen, setProfileOpen] = useState(false);
   const [logoutStep, setLogoutStep] = useState(0);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [theme, setTheme] = useState(getInitialTheme);
   const profileMenuRef = useRef(null);
   const pages = [
     { to: "/", label: t("layout.nav.home"), icon: Home, end: true },
@@ -50,7 +65,6 @@ function AppShell({ children }) {
     { to: "/catalog/manhwa", label: t("layout.nav.manhwaCatalog"), icon: BookOpen },
     { to: "/catalog/movie", label: t("layout.nav.movieCatalog"), icon: Film },
     { to: "/recommendations", label: t("layout.nav.recommendations"), icon: Sparkles },
-    ...(isAdmin ? [{ to: "/admin", label: t("layout.nav.admin"), icon: Shield }] : []),
     { to: "/contact", label: t("layout.nav.contact"), icon: Mail, className: "contact-link" }
   ];
   const detailType = location.pathname.split("/")[2];
@@ -66,6 +80,13 @@ function AppShell({ children }) {
     setProfileOpen(false);
     setLogoutStep(0);
   }, [location.pathname]);
+
+  useEffect(() => {
+    document.documentElement.dataset.appTheme = theme;
+    return () => {
+      delete document.documentElement.dataset.appTheme;
+    };
+  }, [theme]);
 
   useEffect(() => {
     function closeMenus(event) {
@@ -90,8 +111,24 @@ function AppShell({ children }) {
   }, []);
 
   function changeLanguage(language) {
-    localStorage.setItem("daytracker_language", language);
+    try {
+      localStorage.setItem("daytracker_language", language);
+    } catch {
+      // The active session can still change language when storage is unavailable.
+    }
     i18n.changeLanguage(language);
+  }
+
+  function toggleTheme() {
+    setTheme((currentTheme) => {
+      const nextTheme = currentTheme === "dark" ? "light" : "dark";
+      try {
+        localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
+      } catch {
+        // Theme still changes for the active session when storage is unavailable.
+      }
+      return nextTheme;
+    });
   }
 
   function toggleSidebar() {
@@ -103,7 +140,7 @@ function AppShell({ children }) {
   }
 
   return (
-    <main className={`app-layout${sidebarCollapsed ? " sidebar-collapsed" : ""}${mobileMenuOpen ? " sidebar-mobile-open" : ""}`}>
+    <main className={`app-layout${sidebarCollapsed ? " sidebar-collapsed" : ""}${mobileMenuOpen ? " sidebar-mobile-open" : ""}`} data-theme={theme}>
       <button className="sidebar-backdrop" type="button" aria-label={t("layout.closeMenu")} onClick={() => setMobileMenuOpen(false)} />
       <aside className="sidebar" aria-label={t("layout.pages")}>
         <div className="sidebar-header">
@@ -145,9 +182,25 @@ function AppShell({ children }) {
             </div>
           </div>
           <div className="topbar-actions">
+            <button
+              className="icon-button theme-toggle"
+              type="button"
+              onClick={toggleTheme}
+              title={theme === "dark" ? t("layout.useLightTheme") : t("layout.useDarkTheme")}
+              aria-label={theme === "dark" ? t("layout.useLightTheme") : t("layout.useDarkTheme")}
+              aria-pressed={theme === "dark"}
+            >
+              {theme === "dark" ? <Sun size={18} aria-hidden="true" /> : <Moon size={18} aria-hidden="true" />}
+            </button>
             <button className="icon-button" onClick={loadItems} title={t("common.reload")}>
               <RefreshCw size={18} />
             </button>
+            {isAdmin && (
+              <NavLink to="/admin" className={({ isActive }) => `admin-topbar-link${isActive ? " active" : ""}`} aria-label={t("layout.nav.administration")}>
+                <Shield size={17} aria-hidden="true" />
+                <span>{t("layout.nav.administration")}</span>
+              </NavLink>
+            )}
             <div className="profile-menu" ref={profileMenuRef}>
               <button className="profile-trigger" type="button" onClick={() => {
                 setProfileOpen((open) => !open);

@@ -66,14 +66,15 @@
 
 .segmented-control {
   display: inline-grid;
-  grid-template-columns: repeat(4, minmax(90px, auto));
-  width: fit-content;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  width: 100%;
   padding: 4px;
   border-radius: 8px;
   background: #e8edf0;
 }
 
 .segmented-control button {
+  min-width: 0;
   min-height: 36px;
   padding: 0 12px;
   border-radius: 6px;
@@ -133,7 +134,7 @@
   object-fit: cover;
 }
 
-.catalog-picker-item > span:not(.catalog-picker-cover) {
+.catalog-picker-item>span:not(.catalog-picker-cover) {
   min-width: 0;
 }
 

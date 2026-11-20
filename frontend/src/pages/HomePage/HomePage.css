@@ -9,6 +9,24 @@
   display: grid;
   grid-template-columns: minmax(0, 1.35fr) minmax(300px, 0.65fr);
   gap: 16px;
+  align-items: start;
+}
+
+.home-tracking-panel,
+.home-recommendations-panel {
+  min-width: 0;
+}
+
+.home-tracking-list {
+  max-height: clamp(340px, 48vh, 540px);
+  overflow-y: auto;
+  padding-right: 5px;
+  scrollbar-gutter: stable;
+  overscroll-behavior: contain;
+}
+
+.home-recommendations-panel {
+  align-self: start;
 }
 
 .home-recommendations-link {
@@ -47,5 +65,11 @@
 
   .home-calendar-link {
     width: 100%;
+  }
+
+  .home-tracking-list {
+    max-height: none;
+    overflow: visible;
+    padding-right: 0;
   }
 }
