@@ -30,6 +30,7 @@
 | Scrollbar | `frontend/src/styles.css` | `DESIGN.md` | stable gutter where needed | browser |
 | Theme | `AppLayout` + semantic variables in `frontend/src/styles.css` | `DESIGN.md` + this contract | light / dark | build + browser |
 | Action button | Shared `.primary`, `.ghost` and `.icon-button` recipes | `frontend/src/styles.css` + `DESIGN.md` | primary / utility / icon / danger | keyboard + theme + build |
+| Dialog | App-owned modal with focus trap, inert background and focus restoration | This contract + sibling account/admin dialogs | standard / confirmation / long document | keyboard + narrow viewport + build |
 | Toast/status | `Notice` | Shared component | warning / error / success | build |
 | CRUD | Owner-filtered REST services | API + this contract | return / stay | Maven tests |
 | Admin table | Semantic native table + server pagination | `/api/admin/users` + this contract | horizontal overflow on narrow screens | service tests + keyboard + browser |
@@ -65,6 +66,7 @@ Catalog and recommendation grids use bounded pagination in complete visual rows.
 | Renew session | Expiry dialog | Renewal action busy | Stay on current route | Dialog closes after new JWT | Expired/invalid JWT returns to auth with persistent notice |
 | Delete account | Profile settings → two confirmations → typed username | Final danger action busy | Public auth route | Persistent deletion notice | Keep final confirmation open with retry/cancel |
 | Change theme | Top-bar sun/moon button | Immediate semantic color swap | Stay on current route | Icon and accessible label update | Keep active-session choice if storage is unavailable |
+| Review legal information | Sidebar footer → privacy/legal action | Immediate dialog open | Stay on current route | Document title and content visible | Escape/backdrop/close restores trigger focus |
 
 ## Navigation and responsive behavior
 
@@ -86,7 +88,7 @@ Catalog reads remain available to regular users, but every user-triggered catalo
 
 All four catalog routes share the same server-side publication-status filter. Changing it returns to page one and composes with the current text query without mutating catalog data.
 
-`Contact us` is the final sidebar destination for authenticated users. Submissions require a category, subject and message, derive the sender from the JWT and warn against including secrets. Messages are visible only in the admin inbox, unresolved items sort first, and account deletion removes the sender's contact messages through the documented cascade.
+`Contact us` is the final product destination in the authenticated sidebar. A compact footer below navigation exposes Privacy and Legal notice as buttons that open the existing documents in an app-owned modal without changing route. Submissions require a category, subject and message, derive the sender from the JWT and warn against including secrets. Messages are visible only in the admin inbox, unresolved items sort first, and account deletion removes the sender's contact messages through the documented cascade.
 
 The administration API exposes account identity, email, role and whether current policies were accepted, plus aggregate account/message counts. An explicit per-user action may request aggregate reading/viewing progress, but the response never contains titles, notes, ratings or detailed activity. Only `ADMIN` may read these endpoints, change roles or resolve contact messages. Role changes require confirmation, cannot target the acting administrator and cannot remove the final administrator.
 

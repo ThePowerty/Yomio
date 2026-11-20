@@ -1,0 +1,8 @@
+.legal-modal-backdrop { position: fixed; z-index: var(--z-dialog-backdrop); inset: 0; display: grid; place-items: center; padding: 24px; background: rgba(12,19,23,.68); }
+.legal-modal { width: min(780px, 100%); max-height: calc(100dvh - 48px); position: relative; z-index: var(--z-dialog); display: grid; grid-template-rows: auto minmax(0, 1fr); overflow: hidden; border: 1px solid var(--color-border); border-radius: 12px; color: var(--color-ink); background: var(--color-surface); box-shadow: 0 24px 70px rgba(0,0,0,.34); }
+.legal-modal-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; padding: 20px 22px; border-bottom: 1px solid var(--color-border); background: var(--color-surface-soft); }
+.legal-modal-header .eyebrow { display: inline-flex; align-items: center; gap: 7px; }
+.legal-modal-header h2 { margin-top: 5px; font-size: 1.35rem; }
+.legal-modal-header p { margin-top: 5px; color: var(--color-text-muted); font-size: .78rem; }
+.legal-modal-body { min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 0 22px 24px; scrollbar-gutter: stable; }
+@media (max-width: 640px) { .legal-modal-backdrop { padding: 0; } .legal-modal { width: 100%; height: 100dvh; max-height: none; border: 0; border-radius: 0; } .legal-modal-header { padding: 16px; } .legal-modal-body { padding-inline: 16px; } }

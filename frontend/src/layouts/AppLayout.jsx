@@ -1,9 +1,10 @@
-import { Bookmark, BookOpen, CalendarDays, ChevronDown, ClipboardList, Film, Home, Languages, Library, LogOut, Mail, Menu, MonitorPlay, Moon, PanelLeftClose, PanelLeftOpen, RefreshCw, Settings, Shield, Sparkles, Sun, UserRound } from "lucide-react";
+import { Bookmark, BookOpen, CalendarDays, ChevronDown, ClipboardList, Film, Home, Languages, Library, LogOut, Mail, Menu, MonitorPlay, Moon, PanelLeftClose, PanelLeftOpen, RefreshCw, Scale, Settings, Shield, ShieldCheck, Sparkles, Sun, UserRound } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { TrackingEditorModal } from "../components/TrackingEditorModal/TrackingEditorModal";
 import { AccountSettingsModal } from "../components/AccountSettingsModal/AccountSettingsModal";
+import { LegalDocumentsModal } from "../components/LegalDocumentsModal/LegalDocumentsModal";
 import { TrackerProvider, useTracker } from "../context/TrackerContext";
 import { useAuth } from "../context/AuthContext";
 
@@ -54,6 +55,7 @@ function AppShell({ children }) {
   const [logoutStep, setLogoutStep] = useState(0);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [theme, setTheme] = useState(getInitialTheme);
+  const [legalDocument, setLegalDocument] = useState(null);
   const profileMenuRef = useRef(null);
   const pages = [
     { to: "/", label: t("layout.nav.home"), icon: Home, end: true },
@@ -165,6 +167,11 @@ function AppShell({ children }) {
           })}
         </nav>
 
+        <footer className="sidebar-legal" aria-label={t("layout.legal.information")}>
+          <button type="button" onClick={() => setLegalDocument("privacy")} aria-haspopup="dialog" title={t("layout.legal.privacy")}><ShieldCheck size={14} aria-hidden="true" /><span>{t("layout.legal.privacyShort")}</span></button>
+          <button type="button" onClick={() => setLegalDocument("legal")} aria-haspopup="dialog" title={t("layout.legal.notice")}><Scale size={14} aria-hidden="true" /><span>{t("layout.legal.noticeShort")}</span></button>
+        </footer>
+
       </aside>
 
       <section className="app-content">
@@ -266,6 +273,7 @@ function AppShell({ children }) {
         <TrackingEditorModal />
         <AccountSettingsModal open={settingsOpen} onClose={() => setSettingsOpen(false)} />
       </section>
+      <LegalDocumentsModal document={legalDocument} onClose={() => setLegalDocument(null)} onSelectDocument={setLegalDocument} />
     </main>
   );
 }

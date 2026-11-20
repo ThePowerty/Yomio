@@ -1,0 +1,8 @@
+.legal-content section { margin-top: 34px; padding-top: 28px; border-top: 1px solid var(--color-border, #e3e8ea); }
+.legal-content section:first-child { margin-top: 24px; }
+.legal-content section h2 { margin-bottom: 12px; }
+.legal-content section p { color: var(--color-text-secondary, #46545c); line-height: 1.72; }
+.legal-content section p + p { margin-top: 12px; }
+.legal-content .legal-warning { padding: 12px 14px; border-left: 3px solid #b8872f; color: var(--color-warning, #684b17); background: var(--color-warning-soft, #fff8e8); }
+.legal-source { margin-top: 34px; display: inline-flex; align-items: center; gap: 8px; padding: 0; color: var(--color-primary-strong, #315f57); background: transparent; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+.legal-source:hover, .legal-source:focus-visible { color: var(--color-primary); outline: 2px solid var(--color-primary); outline-offset: 4px; }

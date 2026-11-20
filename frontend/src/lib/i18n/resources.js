@@ -58,6 +58,15 @@ export const resources = {
         useDarkTheme: "Usar tema oscuro",
         spanish: "ES",
         english: "EN",
+        legal: {
+          information: "Información legal",
+          publicInformation: "Información pública",
+          privacy: "Política de privacidad",
+          privacyShort: "Privacidad",
+          notice: "Aviso legal",
+          noticeShort: "Aviso legal",
+          updated: "Última actualización: 19 de noviembre de 2026"
+        },
         nav: {
           home: "Inicio",
           tracking: "Seguimiento",
@@ -481,6 +490,15 @@ export const resources = {
         useDarkTheme: "Use dark theme",
         spanish: "ES",
         english: "EN",
+        legal: {
+          information: "Legal information",
+          publicInformation: "Public information",
+          privacy: "Privacy policy",
+          privacyShort: "Privacy",
+          notice: "Legal notice",
+          noticeShort: "Legal notice",
+          updated: "Last updated: November 19, 2026"
+        },
         nav: {
           home: "Home",
           tracking: "Tracking",
