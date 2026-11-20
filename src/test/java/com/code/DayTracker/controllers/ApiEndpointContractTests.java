@@ -30,6 +30,7 @@ class ApiEndpointContractTests {
                 "/api/catalog/{id}", "/api/catalog/page", "/api/catalog/refresh",
                 "/api/catalog/refresh-release-progress", "/api/tracks", "/api/tracks/{id}",
                 "/api/contact-messages", "/api/contact-messages/{id}/resolve",
+                "/api/admin/overview", "/api/admin/users",
                 "/api/wishlist", "/api/wishlist/{id}/start", "/api/wishlist/{id}",
                 "/api/community/{mediaId}", "/api/community/comments/{id}/reaction",
                 "/api/community/comments/{id}/reports", "/api/media/{mediaId}/notes",

@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 public interface ContactMessageRepository extends JpaRepository<ContactMessage, Long> {
+    long countByResolvedAtIsNull();
+
     @Query("""
             select message from ContactMessage message
             order by case when message.resolvedAt is null then 0 else 1 end, message.createdAt desc

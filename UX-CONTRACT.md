@@ -18,7 +18,7 @@
 ## Visual contract
 
 - `DESIGN.md` mirrors canonical runtime tokens in `frontend/src/styles.css`; changes update both together.
-- Supported theme: light. Global scrollbar and focus behavior belong to the application stylesheet.
+- Supported themes: light and dark for authenticated routes. The top-bar toggle persists the explicit choice locally; without one, the initial theme follows the system preference. Global scrollbar and focus behavior belong to the application stylesheet and adapt with the active theme.
 
 ## Canonical UI Map
 
@@ -28,8 +28,11 @@
 | Date | Authored read-only release calendar + `Intl.DateTimeFormat` | This contract | monthly display / local-time agenda | keyboard + locale + browser |
 | Form | Labeled native fields + `Notice` | Shared CSS | create / edit | service tests + browser |
 | Scrollbar | `frontend/src/styles.css` | `DESIGN.md` | stable gutter where needed | browser |
+| Theme | `AppLayout` + semantic variables in `frontend/src/styles.css` | `DESIGN.md` + this contract | light / dark | build + browser |
+| Action button | Shared `.primary`, `.ghost` and `.icon-button` recipes | `frontend/src/styles.css` + `DESIGN.md` | primary / utility / icon / danger | keyboard + theme + build |
 | Toast/status | `Notice` | Shared component | warning / error / success | build |
 | CRUD | Owner-filtered REST services | API + this contract | return / stay | Maven tests |
+| Admin table | Semantic native table + server pagination | `/api/admin/users` + this contract | horizontal overflow on narrow screens | service tests + keyboard + browser |
 
 ## Component behavior
 
@@ -53,14 +56,21 @@ Catalog and recommendation grids use bounded pagination in complete visual rows.
 | Browse releases | Calendar navigation | Stable reserved calendar | Stay in selected month/day | Inline agenda | Retry through shared reload |
 | Filter catalog | Publication-status select | Stable reserved grid | First result page | Empty/no-results state | Keep query and selected status |
 | Contact administration | Contact form | Disabled submit | Stay; reset fields | `Notice` | Preserve values and retry |
+| Review users | Administration search/pagination | Stable table frame | Stay in dashboard | Range and total | Preserve stale rows; retry refresh |
+| Review user progress | User row → progress action | Dialog loading state | Stay in dashboard | Aggregate reading/viewing totals | Keep dialog open; retry action |
+| Change user role | User row → role action → explicit confirmation | Final action busy | Stay in dashboard | Row and admin totals update | Keep dialog open with selected role |
+| Resolve contact message | Message action | Disable active message action | Stay in dashboard | Pending count updates | Preserve message; retry |
 | Enter public product page | Direct visit to `/` while signed out | Complete first fold | Auth/register or internal section | Visible destination | Custom 404 for unknown routes |
 | Choose analytics | Consent banner when GA is configured | No blocking state | Stay on current route | Banner closes | Reopen requires clearing saved preference |
 | Renew session | Expiry dialog | Renewal action busy | Stay on current route | Dialog closes after new JWT | Expired/invalid JWT returns to auth with persistent notice |
 | Delete account | Profile settings → two confirmations → typed username | Final danger action busy | Public auth route | Persistent deletion notice | Keep final confirmation open with retry/cancel |
+| Change theme | Top-bar sun/moon button | Immediate semantic color swap | Stay on current route | Icon and accessible label update | Keep active-session choice if storage is unavailable |
 
 ## Navigation and responsive behavior
 
 The sidebar becomes an overlay below 1040px. The application owns one content scroll region. Story workspace columns collapse below 760px; actions remain visible without hover. Focus must not be hidden behind the top bar.
+
+`ADMIN` users receive an Administration link immediately beside the profile control; the link is absent for other roles and `/admin` remains protected on both client and server. The dashboard uses server pagination for accounts and horizontal table overflow on narrow screens. User search state remains route-local because it may contain an email address and must not enter browser history, analytics or shareable URLs.
 
 The public root owns a sticky header, meaningful internal anchors and an above-fold primary CTA. Below 640px, a fixed mobile CTA becomes visible only once the hero CTA is outside the viewport. Unknown client routes render the branded 404 with recovery links and `noindex,nofollow`; public privacy and legal routes remain reachable without authentication.
 
@@ -77,6 +87,8 @@ Catalog reads remain available to regular users, but every user-triggered catalo
 All four catalog routes share the same server-side publication-status filter. Changing it returns to page one and composes with the current text query without mutating catalog data.
 
 `Contact us` is the final sidebar destination for authenticated users. Submissions require a category, subject and message, derive the sender from the JWT and warn against including secrets. Messages are visible only in the admin inbox, unresolved items sort first, and account deletion removes the sender's contact messages through the documented cascade.
+
+The administration API exposes account identity, email, role and whether current policies were accepted, plus aggregate account/message counts. An explicit per-user action may request aggregate reading/viewing progress, but the response never contains titles, notes, ratings or detailed activity. Only `ADMIN` may read these endpoints, change roles or resolve contact messages. Role changes require confirmation, cannot target the acting administrator and cannot remove the final administrator.
 
 For catalog titles with status `RELEASING`, progress forms expose `UP_TO_DATE` instead of `COMPLETED` and bind it to the latest confirmed release. Once the catalog status becomes `FINISHED`, API responses normalize an up-to-date entry to completed when it has reached the final unit.
 

@@ -87,6 +87,14 @@ public class AppUser implements UserDetails {
         return role;
     }
 
+    public void updateRole(Role role) {
+        this.role = role;
+    }
+
+    public boolean hasAcceptedPolicies() {
+        return policiesAcceptedAt != null;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));

@@ -27,6 +27,18 @@ public class ApiExceptionHandler {
                 .body(error(request, HttpStatus.BAD_REQUEST, "INVALID_REQUEST", exception.getMessage(), Map.of()));
     }
 
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ApiError> handleNotFound(ResourceNotFoundException exception, HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(error(request, HttpStatus.NOT_FOUND, "NOT_FOUND", exception.getMessage(), Map.of()));
+    }
+
+    @ExceptionHandler(ConflictException.class)
+    public ResponseEntity<ApiError> handleConflict(ConflictException exception, HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(error(request, HttpStatus.CONFLICT, "CONFLICT", exception.getMessage(), Map.of()));
+    }
+
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ApiError> handleBadCredentials(BadCredentialsException exception, HttpServletRequest request) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)

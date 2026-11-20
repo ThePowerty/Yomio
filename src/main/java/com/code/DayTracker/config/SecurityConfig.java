@@ -47,6 +47,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/catalog/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/contact-messages").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PATCH, "/api/contact-messages/*/resolve").hasRole("ADMIN")
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/catalog/refresh", "/api/catalog/refresh-release-progress").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
