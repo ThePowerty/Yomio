@@ -70,7 +70,7 @@ Catalog and recommendation grids use bounded pagination in complete visual rows.
 
 ## Navigation and responsive behavior
 
-The sidebar becomes an overlay below 1040px. The application owns one content scroll region. Story workspace columns collapse below 760px; actions remain visible without hover. Focus must not be hidden behind the top bar.
+The sidebar becomes an overlay below 1040px. The application owns one content scroll region. Story workspace columns collapse below 760px; actions remain visible without hover. Focus must not be hidden behind the top bar. Below 480px, the authenticated top bar reflows into two rows so every action remains visible and the page title may wrap; destructive tracking confirmations stack above their actions.
 
 `ADMIN` users receive an Administration link immediately beside the profile control; the link is absent for other roles and `/admin` remains protected on both client and server. The dashboard uses server pagination for accounts and horizontal table overflow on narrow screens. User search state remains route-local because it may contain an email address and must not enter browser history, analytics or shareable URLs.
 

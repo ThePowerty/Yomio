@@ -59,7 +59,7 @@
 
 body {
   margin: 0;
-  min-width: 320px;
+  min-width: 0;
   height: 100dvh;
   overflow: hidden;
 }
@@ -1420,5 +1420,38 @@ textarea {
   .stats-grid,
   .grid-2 {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .topbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .topbar-heading h1 {
+    max-width: none;
+    overflow: visible;
+    text-overflow: clip;
+    white-space: normal;
+  }
+
+  .topbar-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .track-delete-confirm {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .track-delete-confirm > div {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .track-delete-confirm button {
+    width: 100%;
   }
 }
