@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { Notice } from "../../components/Notice/Notice";
+import { LoadingSkeleton } from "../../components/LoadingSkeleton/LoadingSkeleton";
 import { useTracker } from "../../context/TrackerContext";
 import "./ReleaseCalendarPage.css";
 
@@ -42,7 +43,7 @@ function getLocale(language) {
 
 export function ReleaseCalendarPage({ compact = false }) {
   const { t, i18n } = useTranslation();
-  const { items, loading, status, clearStatus } = useTracker();
+  const { items, initialLoading, status, clearStatus } = useTracker();
   const today = useMemo(() => {
     const value = new Date();
     value.setHours(0, 0, 0, 0);
@@ -140,8 +141,8 @@ export function ReleaseCalendarPage({ compact = false }) {
             {weekdays.map((weekday) => <span key={weekday}>{weekday}</span>)}
           </div>
 
-          {loading && items.length === 0 ? (
-            <div className="release-calendar-loading" role="status">{t("common.loading")}</div>
+          {initialLoading && items.length === 0 ? (
+            <LoadingSkeleton variant="calendar" compact={compact} label={t("common.loading")} />
           ) : (
             <div className="release-month-grid">
               {calendarDays.map((date) => {

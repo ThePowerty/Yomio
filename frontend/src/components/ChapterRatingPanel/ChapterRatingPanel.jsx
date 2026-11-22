@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from "../../context/AuthContext";
 import { apiRequest } from "../../services/api";
 import { Notice } from "../Notice/Notice";
+import { LoadingSkeleton } from "../LoadingSkeleton/LoadingSkeleton";
 import "./ChapterRatingPanel.css";
 
 export function ChapterRatingPanel({ track, unit, onUnitChange, showUnitSelector = false }) {
@@ -12,6 +13,7 @@ export function ChapterRatingPanel({ track, unit, onUnitChange, showUnitSelector
   const [ratings, setRatings] = useState([]);
   const [rating, setRating] = useState("");
   const [busy, setBusy] = useState(false);
+  const [ratingsLoading, setRatingsLoading] = useState(true);
   const [message, setMessage] = useState("");
   const [pendingDelete, setPendingDelete] = useState(null);
   const isVideo = track.type === "ANIME" || track.type === "MOVIE";
@@ -27,13 +29,15 @@ export function ChapterRatingPanel({ track, unit, onUnitChange, showUnitSelector
     setPendingDelete(null);
   }, [unit]);
 
-  async function loadRatings() {
+  async function loadRatings(showSkeleton = true) {
+    if (showSkeleton) setRatingsLoading(true);
     setBusy(true);
     try {
       setRatings(await apiRequest(`/api/media/${track.catalogMediaId}/ratings`, {}, token));
     } catch (error) {
       setMessage(error.message);
     } finally {
+      if (showSkeleton) setRatingsLoading(false);
       setBusy(false);
     }
   }
@@ -62,7 +66,7 @@ export function ChapterRatingPanel({ track, unit, onUnitChange, showUnitSelector
       }, token);
       setRating("");
       setMessage(t("chapterRatings.saved"));
-      await loadRatings();
+      await loadRatings(false);
     } catch (error) {
       setMessage(error.message);
     } finally {
@@ -77,7 +81,7 @@ export function ChapterRatingPanel({ track, unit, onUnitChange, showUnitSelector
       await apiRequest(`/api/media/${track.catalogMediaId}/ratings/${id}`, { method: "DELETE" }, token);
       setPendingDelete(null);
       setMessage(t("chapterRatings.deleted"));
-      await loadRatings();
+      await loadRatings(false);
     } catch (error) {
       setMessage(error.message);
     } finally {
@@ -135,8 +139,8 @@ export function ChapterRatingPanel({ track, unit, onUnitChange, showUnitSelector
             <div><span className="eyebrow">{t("chapterRatings.historyEyebrow")}</span><h3 id="chapter-rating-history-title">{t("chapterRatings.history")}</h3></div>
             <small>{t("chapterRatings.historyCount", { count: ratings.length })}</small>
           </header>
-          {busy && ratings.length === 0 ? (
-            <p className="muted">{t("common.loading")}</p>
+          {ratingsLoading && ratings.length === 0 ? (
+            <LoadingSkeleton variant="list" count={4} label={t("common.loading")} />
           ) : ratings.length === 0 ? (
             <div className="chapter-rating-empty"><Star size={26} /><p>{t("chapterRatings.empty")}</p></div>
           ) : ratings.map((item) => (

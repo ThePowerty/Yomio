@@ -35,8 +35,9 @@ export const resources = {
         password: "Password",
         acceptPoliciesPrefix: "Acepto la",
         privacyPolicy: "política de privacidad",
-        and: "y el",
+        and: "y los",
         legalNotice: "aviso legal",
+        termsConditions: "términos y condiciones",
         userRole: "User",
         adminRole: "Admin"
       },
@@ -65,6 +66,8 @@ export const resources = {
           privacyShort: "Privacidad",
           notice: "Aviso legal",
           noticeShort: "Aviso legal",
+          terms: "Términos y condiciones",
+          termsShort: "Términos",
           updated: "Última actualización: 19 de noviembre de 2026"
         },
         nav: {
@@ -469,6 +472,7 @@ export const resources = {
         privacyPolicy: "privacy policy",
         and: "and the",
         legalNotice: "legal notice",
+        termsConditions: "terms and conditions",
         userRole: "User",
         adminRole: "Admin"
       },
@@ -497,6 +501,8 @@ export const resources = {
           privacyShort: "Privacy",
           notice: "Legal notice",
           noticeShort: "Legal notice",
+          terms: "Terms and conditions",
+          termsShort: "Terms",
           updated: "Last updated: November 19, 2026"
         },
         nav: {

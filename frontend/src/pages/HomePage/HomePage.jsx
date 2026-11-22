@@ -4,13 +4,14 @@ import { useNavigate } from "react-router-dom";
 import { RecommendationCarousel } from "../../components/RecommendationCarousel/RecommendationCarousel";
 import { StatCard } from "../../components/StatCard/StatCard";
 import { TrackCard } from "../../components/TrackCard/TrackCard";
+import { LoadingSkeleton } from "../../components/LoadingSkeleton/LoadingSkeleton";
 import { useTracker } from "../../context/TrackerContext";
 import { ReleaseCalendarPage } from "../ReleaseCalendarPage/ReleaseCalendarPage";
 import "./HomePage.css";
 
 export function HomePage() {
   const { t } = useTranslation();
-  const { stats, items, recommendations, editItem, openNewTracking } = useTracker();
+  const { stats, items, recommendations, editItem, openNewTracking, initialLoading } = useTracker();
   const navigate = useNavigate();
   const recentItems = items.slice(0, 4);
   const firstRecommendations = recommendations.slice(0, 4);
@@ -26,14 +27,14 @@ export function HomePage() {
 
   return (
     <div className="page-stack">
-      <section className="stats-grid">
+      {initialLoading ? <LoadingSkeleton variant="stats" count={6} label={t("common.loading")} /> : <section className="stats-grid">
         <StatCard icon={BarChart3} label={t("home.stats.anime")} value={stats.anime} detail={t("home.stats.inProgress", { count: stats.inProgress })} />
         <StatCard icon={BookOpen} label={t("home.stats.manga")} value={stats.manga} detail={t("home.stats.finished", { count: stats.finished })} />
         <StatCard icon={BookOpen} label={t("home.stats.manhwa")} value={stats.manhwa} detail={t("home.stats.inProgress", { count: stats.inProgress })} />
         <StatCard icon={Film} label={t("home.stats.movies")} value={stats.movies} detail={t("home.stats.inProgress", { count: stats.inProgress })} />
         <StatCard icon={Check} label={t("home.stats.completed")} value={stats.finished} detail={t("home.stats.closedEntries")} />
         <StatCard icon={Sparkles} label={t("home.stats.averageScore")} value={stats.averageScore} detail={t("home.stats.outOfTen")} />
-      </section>
+      </section>}
 
       <section className="home-overview-grid">
         <section className="panel home-calendar-panel">
@@ -61,7 +62,9 @@ export function HomePage() {
             </button>
           </div>
 
-          {recentItems.length === 0 ? (
+          {initialLoading ? (
+            <LoadingSkeleton variant="list" count={4} label={t("common.loading")} />
+          ) : recentItems.length === 0 ? (
             <div className="empty compact">
               <BookOpen size={30} />
               <p>{t("home.noTracking")}</p>
@@ -85,7 +88,9 @@ export function HomePage() {
               {t("home.viewAllRecommendations")} <ArrowRight size={17} />
             </button>
           </div>
-          <RecommendationCarousel recommendations={firstRecommendations} onSelect={useRecommendation} />
+          {initialLoading
+            ? <LoadingSkeleton variant="list" count={3} label={t("common.loading")} />
+            : <RecommendationCarousel recommendations={firstRecommendations} onSelect={useRecommendation} />}
           </div>
         </section>
       </section>

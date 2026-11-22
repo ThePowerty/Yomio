@@ -1,3 +1,5 @@
+import { useGSAP } from "@gsap/react";
+import { gsap } from "gsap";
 import { Bookmark, BookOpen, CalendarDays, ChevronDown, ClipboardList, Film, Home, Languages, Library, LogOut, Mail, Menu, MonitorPlay, Moon, PanelLeftClose, PanelLeftOpen, RefreshCw, Scale, Settings, Shield, ShieldCheck, Sparkles, Sun, UserRound } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -7,6 +9,8 @@ import { AccountSettingsModal } from "../components/AccountSettingsModal/Account
 import { LegalDocumentsModal } from "../components/LegalDocumentsModal/LegalDocumentsModal";
 import { TrackerProvider, useTracker } from "../context/TrackerContext";
 import { useAuth } from "../context/AuthContext";
+
+gsap.registerPlugin(useGSAP);
 
 const titlesByPath = {
   "/": "layout.titles.home",
@@ -57,6 +61,11 @@ function AppShell({ children }) {
   const [theme, setTheme] = useState(getInitialTheme);
   const [legalDocument, setLegalDocument] = useState(null);
   const profileMenuRef = useRef(null);
+  const layoutRef = useRef(null);
+  const themeToggleRef = useRef(null);
+  const themeWashRef = useRef(null);
+  const themeTimelineRef = useRef(null);
+  const reducedMotionRef = useRef(false);
   const pages = [
     { to: "/", label: t("layout.nav.home"), icon: Home, end: true },
     { to: "/tracking", label: t("layout.nav.tracking"), icon: ClipboardList },
@@ -112,6 +121,22 @@ function AppShell({ children }) {
     };
   }, []);
 
+  const { contextSafe } = useGSAP(() => {
+    gsap.set(themeWashRef.current, { autoAlpha: 0 });
+    const media = gsap.matchMedia();
+    media.add("(prefers-reduced-motion: reduce)", () => {
+      reducedMotionRef.current = true;
+      return () => { reducedMotionRef.current = false; };
+    });
+    media.add("(prefers-reduced-motion: no-preference)", () => {
+      reducedMotionRef.current = false;
+    });
+    return () => {
+      themeTimelineRef.current?.kill();
+      media.revert();
+    };
+  }, { scope: layoutRef });
+
   function changeLanguage(language) {
     try {
       localStorage.setItem("daytracker_language", language);
@@ -121,17 +146,35 @@ function AppShell({ children }) {
     i18n.changeLanguage(language);
   }
 
-  function toggleTheme() {
-    setTheme((currentTheme) => {
-      const nextTheme = currentTheme === "dark" ? "light" : "dark";
-      try {
-        localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
-      } catch {
-        // Theme still changes for the active session when storage is unavailable.
-      }
-      return nextTheme;
-    });
+  function applyTheme(nextTheme) {
+    try {
+      localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
+    } catch {
+      // Theme still changes for the active session when storage is unavailable.
+    }
+    setTheme(nextTheme);
   }
+
+  const toggleTheme = contextSafe(() => {
+    if (themeTimelineRef.current?.isActive()) return;
+    const nextTheme = theme === "dark" ? "light" : "dark";
+    const wash = themeWashRef.current;
+    const toggle = themeToggleRef.current;
+    wash.dataset.targetTheme = nextTheme;
+
+    if (reducedMotionRef.current) {
+      applyTheme(nextTheme);
+      return;
+    }
+
+    themeTimelineRef.current = gsap.timeline({ defaults: { overwrite: "auto" } })
+      .to(wash, { autoAlpha: 1, duration: .14, ease: "power1.out" })
+      .to(toggle, { scale: .92, rotation: nextTheme === "dark" ? 8 : -8, duration: .14, ease: "power1.in" }, 0)
+      // Swap palettes only while the opaque veil fully covers the application.
+      .call(() => applyTheme(nextTheme))
+      .to(wash, { autoAlpha: 0, duration: .2, ease: "power2.out" })
+      .to(toggle, { scale: 1, rotation: 0, duration: .2, ease: "power2.out", clearProps: "transform" }, "<");
+  });
 
   function toggleSidebar() {
     if (window.matchMedia("(max-width: 1040px)").matches) {
@@ -142,7 +185,8 @@ function AppShell({ children }) {
   }
 
   return (
-    <main className={`app-layout${sidebarCollapsed ? " sidebar-collapsed" : ""}${mobileMenuOpen ? " sidebar-mobile-open" : ""}`} data-theme={theme}>
+    <main ref={layoutRef} className={`app-layout${sidebarCollapsed ? " sidebar-collapsed" : ""}${mobileMenuOpen ? " sidebar-mobile-open" : ""}`} data-theme={theme}>
+      <div ref={themeWashRef} className="theme-transition-wash" aria-hidden="true" />
       <button className="sidebar-backdrop" type="button" aria-label={t("layout.closeMenu")} onClick={() => setMobileMenuOpen(false)} />
       <aside className="sidebar" aria-label={t("layout.pages")}>
         <div className="sidebar-header">
@@ -190,6 +234,7 @@ function AppShell({ children }) {
           </div>
           <div className="topbar-actions">
             <button
+              ref={themeToggleRef}
               className="icon-button theme-toggle"
               type="button"
               onClick={toggleTheme}

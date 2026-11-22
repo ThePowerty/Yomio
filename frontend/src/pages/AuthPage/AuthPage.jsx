@@ -145,7 +145,7 @@ export function AuthPage() {
           {mode === "register" && (
             <label className="policy-consent">
               <input type="checkbox" checked={policiesAccepted} onChange={(event) => setPoliciesAccepted(event.target.checked)} />
-              <span>{t("auth.acceptPoliciesPrefix")} <a href="/privacy" target="_blank" rel="noreferrer">{t("auth.privacyPolicy")}</a> {t("auth.and")} <a href="/legal" target="_blank" rel="noreferrer">{t("auth.legalNotice")}</a>.</span>
+              <span>{t("auth.acceptPoliciesPrefix")} <a href="/privacy" target="_blank" rel="noreferrer">{t("auth.privacyPolicy")}</a> {t("auth.and")} <a href="/terms" target="_blank" rel="noreferrer">{t("auth.termsConditions")}</a>.</span>
             </label>
           )}
 
@@ -157,7 +157,7 @@ export function AuthPage() {
 
         <Notice message={status} onClose={() => setStatus("")} />
         <nav className="auth-legal" aria-label="Información legal">
-          <a href="/privacy">Privacidad</a><span aria-hidden="true">·</span><a href="/legal">Aviso legal</a>
+          <a href="/privacy">Privacidad</a><span aria-hidden="true">·</span><a href="/terms">Términos y condiciones</a>
         </nav>
       </section>
     </main>

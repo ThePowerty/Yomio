@@ -4,7 +4,9 @@ import { LegalDocumentContent } from "../../components/LegalDocumentContent/Lega
 import "./LegalPage.css";
 
 export function LegalPage() {
-  const privacy = useLocation().pathname === "/privacy";
+  const pathname = useLocation().pathname;
+  const privacy = pathname === "/privacy";
+  const terms = pathname === "/terms";
   return (
     <main className="legal-shell">
       <header className="legal-header">
@@ -13,7 +15,7 @@ export function LegalPage() {
       </header>
       <article className="legal-document">
         <span className="eyebrow"><ShieldCheck size={15} /> Información pública</span>
-        <h1>{privacy ? "Política de privacidad" : "Aviso legal"}</h1>
+        <h1>{privacy ? "Política de privacidad" : terms ? "Términos y condiciones" : "Aviso legal"}</h1>
         <p className="legal-updated">Última actualización: 19 de noviembre de 2026</p>
         <LegalDocumentContent document={privacy ? "privacy" : "legal"} />
       </article>

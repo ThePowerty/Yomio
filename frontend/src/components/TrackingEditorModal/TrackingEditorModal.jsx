@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useTracker } from "../../context/TrackerContext";
 import { Notice } from "../Notice/Notice";
+import { LoadingSkeleton } from "../LoadingSkeleton/LoadingSkeleton";
 import "./TrackingEditorModal.css";
 
 export function TrackingEditorModal() {
@@ -135,7 +136,9 @@ export function TrackingEditorModal() {
             </div>
 
             <div className="catalog-picker-list">
-              {results.length === 0 ? (
+              {catalogLoading && results.length === 0 ? (
+                <LoadingSkeleton variant="list" count={4} label={t("common.loading")} />
+              ) : results.length === 0 ? (
                 <div className="empty compact">
                   <BookOpen size={28} />
                   <p>{t("modal.emptyCatalog")}</p>

@@ -37,7 +37,7 @@
 
 ## Component behavior
 
-Buttons remain the same size while busy and expose visible focus. Search supports explicit submission and clear behavior when populated. Textareas use `resize: none`. Lists provide loading, empty, error and no-results states. Destructive actions are visually separated and require an app-owned confirmation when irreversible. The application top bar owns the only page title; content panels use contextual labels and sectional headings rather than repeating that title.
+Buttons remain the same size while busy and expose visible focus. Search supports explicit submission and clear behavior when populated. Textareas use `resize: none`. Initial content loads use shared skeletons that match the final list, grid, statistics, table, calendar or detail geometry; background refreshes preserve stale content, and mutations never replace settled content with skeletons. Lists provide loading, empty, error and no-results states. Destructive actions are visually separated and require an app-owned confirmation when irreversible. The application top bar owns the only page title; content panels use contextual labels and sectional headings rather than repeating that title.
 
 ## Dataset navigation
 
@@ -65,7 +65,7 @@ Catalog and recommendation grids use bounded pagination in complete visual rows.
 | Choose analytics | Consent banner when GA is configured | No blocking state | Stay on current route | Banner closes | Reopen requires clearing saved preference |
 | Renew session | Expiry dialog | Renewal action busy | Stay on current route | Dialog closes after new JWT | Expired/invalid JWT returns to auth with persistent notice |
 | Delete account | Profile settings → two confirmations → typed username | Final danger action busy | Public auth route | Persistent deletion notice | Keep final confirmation open with retry/cancel |
-| Change theme | Top-bar sun/moon button | Immediate semantic color swap | Stay on current route | Icon and accessible label update | Keep active-session choice if storage is unavailable |
+| Change theme | Top-bar sun/moon button | Brief opaque palette veil; immediate with reduced motion | Stay on current route | Icon and accessible label update | Keep active-session choice if storage is unavailable |
 | Review legal information | Sidebar footer → privacy/legal action | Immediate dialog open | Stay on current route | Document title and content visible | Escape/backdrop/close restores trigger focus |
 
 ## Navigation and responsive behavior
@@ -74,7 +74,7 @@ The sidebar becomes an overlay below 1040px. The application owns one content sc
 
 `ADMIN` users receive an Administration link immediately beside the profile control; the link is absent for other roles and `/admin` remains protected on both client and server. The dashboard uses server pagination for accounts and horizontal table overflow on narrow screens. User search state remains route-local because it may contain an email address and must not enter browser history, analytics or shareable URLs.
 
-The public root owns a sticky header, meaningful internal anchors and an above-fold primary CTA. Below 640px, a fixed mobile CTA becomes visible only once the hero CTA is outside the viewport. Unknown client routes render the branded 404 with recovery links and `noindex,nofollow`; public privacy and legal routes remain reachable without authentication.
+The public root owns a sticky header, meaningful internal anchors and an above-fold primary CTA. Below 640px, a fixed mobile CTA becomes visible only once the hero CTA is outside the viewport. Unknown client routes render the branded 404 with recovery links and `noindex,nofollow`; public privacy, terms and legal-notice routes remain reachable without authentication.
 
 The release calendar is a read-only monthly display, not a date picker. It contains only active tracked titles whose catalog status is `RELEASING` and whose source provides `nextReleaseAt`; completed and dropped entries are excluded. Dates and times use the active locale and the browser's local timezone. The UI never extrapolates later chapters from a single confirmed date. Days with releases expose the title, next episode/chapter and local time in a non-interactive tooltip on pointer hover and keyboard focus; the selected-day agenda is the persistent touch alternative.
 

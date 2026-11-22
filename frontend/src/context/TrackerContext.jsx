@@ -32,17 +32,22 @@ export function TrackerProvider({ children }) {
   const [editorOpen, setEditorOpen] = useState(false);
   const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
 
   useEffect(() => {
+    let active = true;
     if (isAuthenticated && token) {
-      loadItems();
-      loadWishlist();
-      loadRecommendations();
+      // Initial hydration is separate from mutation busy states so settled content is never replaced by a skeleton.
+      setInitialLoading(true);
+      Promise.all([loadItems(), loadWishlist(), loadRecommendations()])
+        .finally(() => { if (active) setInitialLoading(false); });
     } else {
       setItems([]);
       setWishlistItems([]);
       setRecommendationItems([]);
+      setInitialLoading(false);
     }
+    return () => { active = false; };
   }, [isAuthenticated, token]);
 
   const stats = useMemo(() => {
@@ -368,6 +373,7 @@ export function TrackerProvider({ children }) {
     status,
     clearStatus,
     loading,
+    initialLoading,
     loadItems,
     loadWishlist,
     addToWishlist,
@@ -387,7 +393,7 @@ export function TrackerProvider({ children }) {
     openNewTracking,
     closeEditor,
     resetForm
-  }), [items, wishlistItems, stats, recommendations, form, editingId, editorOpen, status, loading, isAdmin, t]);
+  }), [items, wishlistItems, stats, recommendations, form, editingId, editorOpen, status, loading, initialLoading, isAdmin, t]);
 
   return <TrackerContext.Provider value={value}>{children}</TrackerContext.Provider>;
 }

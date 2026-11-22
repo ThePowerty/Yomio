@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useTracker } from "../../context/TrackerContext";
+import { LoadingSkeleton } from "../../components/LoadingSkeleton/LoadingSkeleton";
 import { Notice } from "../../components/Notice/Notice";
 import { apiRequest } from "../../services/api";
 import "./CatalogMediaDetailPage.css";
@@ -139,7 +140,7 @@ export function CatalogMediaDetailPage() {
     if (saved) navigate("/wishlist");
   }
 
-  if (detailLoading) return <div className="panel">{t("common.loading")}</div>;
+  if (detailLoading) return <LoadingSkeleton variant="detail" label={t("common.loading")} />;
   if (!media) return <div className="empty"><BookOpen size={34} /><p>{t("detail.notFound")}</p></div>;
 
   const activeStatusLabel = isVideo ? t("detail.watching") : t("detail.reading");

@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { RecommendationList } from "../../components/RecommendationList/RecommendationList";
 import { Notice } from "../../components/Notice/Notice";
 import { CatalogPagination } from "../../components/CatalogPagination/CatalogPagination";
+import { LoadingSkeleton } from "../../components/LoadingSkeleton/LoadingSkeleton";
 import { useTracker } from "../../context/TrackerContext";
 import { useAuth } from "../../context/AuthContext";
 import "./RecommendationsPage.css";
@@ -24,10 +25,15 @@ export function RecommendationsPage() {
   const [includeFinished, setIncludeFinished] = useState(false);
   const [tasteGenres, setTasteGenres] = useState("");
   const [tasteFormats, setTasteFormats] = useState(["ANIME", "MANGA", "MANHWA"]);
+  const [recommendationsLoading, setRecommendationsLoading] = useState(true);
   const gridRef = useRef(null);
 
   useEffect(() => {
-    loadRecommendations({ type: typeFilter, genre, status: publicationStatus, maxLength, includeFinished });
+    let active = true;
+    setRecommendationsLoading(true);
+    loadRecommendations({ type: typeFilter, genre, status: publicationStatus, maxLength, includeFinished })
+      .finally(() => { if (active) setRecommendationsLoading(false); });
+    return () => { active = false; };
   }, [typeFilter, genre, publicationStatus, maxLength, includeFinished]);
 
   useEffect(() => { loadRecommendationPreferences().then((value)=>{setTasteGenres((value.genres||[]).join(", "));if(value.formats?.length)setTasteFormats(value.formats);}); }, []);
@@ -100,7 +106,9 @@ export function RecommendationsPage() {
         <label>Extensión máxima<input type="number" min="1" value={maxLength} onChange={(event)=>setMaxLength(event.target.value)} placeholder="Sin límite" /></label>
         <label className="recommendation-check"><input type="checkbox" checked={includeFinished} onChange={(event)=>setIncludeFinished(event.target.checked)} /> Incluir completadas o descartadas</label>
       </div>
-      <RecommendationList recommendations={visibleRecommendations} onSelect={useRecommendation} onDismiss={dismissRecommendation} containerRef={gridRef} />
+      {recommendationsLoading && visibleRecommendations.length === 0
+        ? <LoadingSkeleton variant="media-grid" count={size} label={t("common.loading")} />
+        : <RecommendationList recommendations={visibleRecommendations} onSelect={useRecommendation} onDismiss={dismissRecommendation} containerRef={gridRef} />}
       <CatalogPagination page={page} size={size} sizeOptions={sizeOptions} totalItems={filteredRecommendations.length}
         totalPages={totalPages} disabled={loading} onPageChange={setPage} onSizeChange={(nextSize) => {
           setSize(nextSize);

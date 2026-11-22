@@ -32,6 +32,11 @@ const exactMetadata = {
     description: "Información legal, condiciones de uso y propiedad intelectual de Yomio.",
     index: true
   },
+  "/terms": {
+    title: "Términos y condiciones | Yomio",
+    description: "Consulta las condiciones de uso, responsabilidades y normas aplicables de Yomio.",
+    index: true
+  },
   "/tracking": { title: "Seguimiento personal | Yomio", description: "Actualiza el progreso de tus historias y consulta dónde continuar." },
   "/calendar": { title: "Calendario de publicaciones | Yomio", description: "Consulta próximos capítulos y episodios confirmados de tus títulos activos." },
   "/wishlist": { title: "Lista de pendientes | Yomio", description: "Guarda historias para empezar más adelante y pásalas a seguimiento cuando quieras." },

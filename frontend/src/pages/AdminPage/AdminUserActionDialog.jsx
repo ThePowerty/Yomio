@@ -2,6 +2,7 @@ import { AlertTriangle, BookOpen, MonitorPlay, ShieldCheck, X } from "lucide-rea
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { apiRequest } from "../../services/api";
+import { LoadingSkeleton } from "../../components/LoadingSkeleton/LoadingSkeleton";
 
 function progressPercent(group) {
   if (!group?.knownTotalUnits) return 0;
@@ -120,7 +121,7 @@ export function AdminUserActionDialog({ action, token, onClose, onRoleUpdated })
 
         {isProgress ? (
           <div className="admin-dialog-body">
-            {loading && <div className="admin-dialog-state" role="status">{t("admin.loadingProgress")}</div>}
+            {loading && <LoadingSkeleton variant="list" count={3} label={t("admin.loadingProgress")} />}
             {error && <div className="admin-dialog-feedback error" role="alert">{error}</div>}
             {!loading && summary && summary.totalTracked === 0 && <div className="admin-dialog-state"><BookOpen size={26} /><strong>{t("admin.noProgress")}</strong></div>}
             {!loading && summary && summary.totalTracked > 0 && <>

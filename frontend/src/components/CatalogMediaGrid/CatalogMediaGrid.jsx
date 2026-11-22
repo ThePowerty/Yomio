@@ -6,6 +6,7 @@ import { useAuth } from "../../context/AuthContext";
 import { useTracker } from "../../context/TrackerContext";
 import { Notice } from "../Notice/Notice";
 import { CatalogPagination } from "../CatalogPagination/CatalogPagination";
+import { LoadingSkeleton } from "../LoadingSkeleton/LoadingSkeleton";
 import "./CatalogMediaGrid.css";
 
 export function CatalogMediaGrid({ type }) {
@@ -128,7 +129,9 @@ export function CatalogMediaGrid({ type }) {
       <Notice message={status} onClose={clearStatus} />
 
       <section className="catalog-grid" ref={gridRef}>
-        {pageData.items.length === 0 ? (
+        {catalogLoading && pageData.items.length === 0 ? (
+          <LoadingSkeleton variant="media-grid" count={pageData.size} label={t("common.loading")} />
+        ) : pageData.items.length === 0 ? (
           <div className="empty">
             <Search size={34} />
             <p>{t("catalog.empty")}</p>

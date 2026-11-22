@@ -33,6 +33,7 @@ export function AppRoutes() {
       <Route path="/auth" element={<AuthPage />} />
       <Route path="/privacy" element={<LegalPage />} />
       <Route path="/legal" element={<LegalPage />} />
+      <Route path="/terms" element={<LegalPage />} />
 
       <Route element={<PrivateRoute />}>
         <Route element={<AppLayout />}>

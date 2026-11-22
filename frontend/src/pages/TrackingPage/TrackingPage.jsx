@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { RecommendationCarousel } from "../../components/RecommendationCarousel/RecommendationCarousel";
 import { TrackCard } from "../../components/TrackCard/TrackCard";
 import { Notice } from "../../components/Notice/Notice";
+import { LoadingSkeleton } from "../../components/LoadingSkeleton/LoadingSkeleton";
 import { useTracker } from "../../context/TrackerContext";
 import "./TrackingPage.css";
 
@@ -17,7 +18,8 @@ export function TrackingPage() {
     recommendations,
     deleteItem,
     editItem,
-    openNewTracking
+    openNewTracking,
+    initialLoading
   } = useTracker();
   const trackingRecommendations = recommendations.slice(0, 4);
 
@@ -40,7 +42,9 @@ export function TrackingPage() {
         <Notice message={status} onClose={clearStatus} />
 
         <section className="list">
-          {items.length === 0 ? (
+          {initialLoading ? (
+            <LoadingSkeleton variant="list" count={5} label={t("common.loading")} />
+          ) : items.length === 0 ? (
             <div className="empty">
               <BookOpen size={34} />
               <p>{t("tracking.empty")}</p>
@@ -63,7 +67,9 @@ export function TrackingPage() {
               {t("tracking.viewRecommendations")} <ArrowRight size={16} />
             </button>
           </div>
-          {trackingRecommendations.length === 0 ? (
+          {initialLoading ? (
+            <LoadingSkeleton variant="list" count={3} label={t("common.loading")} />
+          ) : trackingRecommendations.length === 0 ? (
             <div className="empty compact tracking-recommendations-empty">
               <Sparkles size={28} />
               <p>{t("recommendations.empty")}</p>
