@@ -8,6 +8,7 @@ import com.code.DayTracker.models.AppUser;
 import com.code.DayTracker.models.Role;
 import com.code.DayTracker.repositories.UserRepository;
 import com.code.DayTracker.security.JwtService;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
@@ -25,17 +26,20 @@ public class AuthService {
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
+    private final ApplicationEventPublisher events;
 
     public AuthService(
             AuthenticationManager authenticationManager,
             JwtService jwtService,
             PasswordEncoder passwordEncoder,
-            UserRepository userRepository
+            UserRepository userRepository,
+            ApplicationEventPublisher events
     ) {
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
         this.passwordEncoder = passwordEncoder;
         this.userRepository = userRepository;
+        this.events = events;
     }
 
     @Transactional
@@ -56,6 +60,7 @@ public class AuthService {
         );
         user.acceptPolicies(CURRENT_POLICIES_VERSION);
         AppUser saved = userRepository.save(user);
+        events.publishEvent(new TransactionalMail.Welcome(saved.getEmail()));
         return new AuthResponse(jwtService.generateToken(saved), UserResponse.from(saved));
     }
 

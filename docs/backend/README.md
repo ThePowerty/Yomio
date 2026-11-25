@@ -90,10 +90,11 @@ Spring carga de forma opcional el archivo `.env` de la raíz. Las variables prin
 | `RATE_LIMIT_ENABLED` | No | `true` |
 | `RATE_LIMIT_GENERAL_PER_MINUTE` | No | `120` |
 | `RATE_LIMIT_AUTH_PER_MINUTE` | No | `10` |
-| `PASSWORD_RESET_SMTP_ENABLED` | No | `false` |
-| `PASSWORD_RESET_FROM` | Si SMTP está activo | Remitente de recuperación |
-| `PASSWORD_RESET_BASE_URL` | No | URL web para restablecer contraseña |
-| `SPRING_MAIL_*` | Si SMTP está activo | Conexión con el proveedor de correo |
+| `BREVO_API_KEY` | Para enviar correo | Clave de la API de Brevo, solo en el backend |
+| `BREVO_MAIL_FROM` | Para enviar correo | Dirección de un remitente verificado en Brevo |
+| `PASSWORD_RESET_BASE_URL` | En producción | URL del formulario de recuperación. En Pages: `https://thepowerty.github.io/Yomio/reset-password` |
+
+El correo de bienvenida y el de recuperación se envían por HTTPS con Brevo tras confirmar la transacción. Si falta la clave o el remitente, no se envía correo. El transporte SMTP anterior y sus variables ya no se usan. Los fallos de entrega se registran sin destinatario, token ni respuesta del proveedor. La cola vive en memoria y no reintenta envíos. Si falla un correo de recuperación, se puede solicitar otro enlace.
 
 `application.properties` también expone opciones `CATALOG_*`, `ANILIST_*` y `KITSU_*` para programar y limitar las sincronizaciones externas.
 

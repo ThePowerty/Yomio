@@ -22,6 +22,11 @@ const exactMetadata = {
     description: "Accede a tu biblioteca personal de anime, manga, manhwa y películas.",
     index: false
   },
+  "/reset-password": {
+    title: "Restablecer contraseña | Yomio",
+    description: "Recupera el acceso a tu cuenta de Yomio.",
+    index: false
+  },
   "/privacy": {
     title: "Política de privacidad | Yomio",
     description: "Consulta cómo Yomio trata, protege y elimina los datos de tu cuenta.",

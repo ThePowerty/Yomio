@@ -38,7 +38,7 @@ function loadGoogleTag() {
 }
 
 export function analyticsIsConfigured() {
-  return analyticsEnabled && Boolean(measurementId);
+  return analyticsEnabled && Boolean(measurementId) && !/\/reset-password\/?$/i.test(window.location.pathname);
 }
 
 export function analyticsConsentStatus() {

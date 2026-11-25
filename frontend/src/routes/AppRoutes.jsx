@@ -3,6 +3,7 @@ import { AppLayout } from "../layouts/AppLayout";
 import { AdminPage } from "../pages/AdminPage/AdminPage";
 import { AnimeCatalogPage } from "../pages/AnimeCatalogPage/AnimeCatalogPage";
 import { AuthPage } from "../pages/AuthPage/AuthPage";
+import { PasswordResetPage } from "../pages/AuthPage/PasswordResetPage";
 import { HomePage } from "../pages/HomePage/HomePage";
 import { MangaCatalogPage } from "../pages/MangaCatalogPage/MangaCatalogPage";
 import { ManhwaCatalogPage } from "../pages/ManhwaCatalogPage/ManhwaCatalogPage";
@@ -31,6 +32,7 @@ export function AppRoutes() {
     <Routes>
       <Route path="/" element={<RootPage />} />
       <Route path="/auth" element={<AuthPage />} />
+      <Route path="/reset-password" element={<PasswordResetPage />} />
       <Route path="/privacy" element={<LegalPage />} />
       <Route path="/legal" element={<LegalPage />} />
       <Route path="/terms" element={<LegalPage />} />

@@ -157,6 +157,7 @@ export function AuthPage() {
         </form>
 
         <Notice message={status} onClose={() => setStatus("")} />
+        {mode === "login" && <div className="auth-legal"><Link to="/reset-password">{t("auth.resetForgot")}</Link></div>}
         <nav className="auth-legal" aria-label="Información legal">
           <Link to="/privacy">Privacidad</Link><span aria-hidden="true">·</span><Link to="/terms">Términos y condiciones</Link>
         </nav>

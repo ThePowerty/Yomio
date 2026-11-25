@@ -94,6 +94,11 @@
 .auth-legal a { color: #84354a; font-weight: 600; text-underline-offset: 3px; }
 .policy-consent { grid-template-columns: 20px 1fr; align-items: start; gap: 10px; color: #52616b; line-height: 1.45; }.policy-consent input { width: 18px; height: 18px; margin: 2px 0 0; accent-color: #9f3a52; }.policy-consent a { color: #84354a; font-weight: 700; text-underline-offset: 2px; }
 
+.auth-shell.auth-recovery { grid-template-columns: minmax(0, 1fr); align-content: safe center; }
+.auth-recovery .auth-panel { margin-block: 16px; }
+.auth-recovery .auth-legal { flex-wrap: wrap; margin-top: 4px; }
+.auth-recovery [role="alert"] { color: var(--color-danger); }
+
 @media (max-width: 900px) {
   .auth-shell { grid-template-columns: 1fr; align-content: start; }
   .auth-story { min-height: 260px; padding: 34px 24px; align-items: center; background-position: 32% center; }

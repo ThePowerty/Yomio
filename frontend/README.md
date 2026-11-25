@@ -56,7 +56,8 @@ Las variables `VITE_*` quedan incluidas en el bundle durante el build: nunca gua
 Públicas:
 
 - `/`: landing para visitantes e inicio personal para usuarios autenticados.
-- `/auth`: registro, login y recuperación de acceso.
+- `/auth`: registro e inicio de sesión.
+- `/reset-password`: solicita un enlace de recuperación o acepta el token del enlace para guardar la nueva contraseña.
 - `/privacy` y `/legal`: información legal.
 - Cualquier ruta desconocida muestra la página 404 de marca.
 

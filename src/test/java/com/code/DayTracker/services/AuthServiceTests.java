@@ -16,6 +16,7 @@ import com.code.DayTracker.security.JwtService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
@@ -27,6 +28,7 @@ class AuthServiceTests {
     private JwtService jwtService;
     private PasswordEncoder passwordEncoder;
     private UserRepository users;
+    private ApplicationEventPublisher events;
     private AuthService service;
 
     @BeforeEach
@@ -35,7 +37,8 @@ class AuthServiceTests {
         jwtService = mock(JwtService.class);
         passwordEncoder = mock(PasswordEncoder.class);
         users = mock(UserRepository.class);
-        service = new AuthService(authenticationManager, jwtService, passwordEncoder, users);
+        events = mock(ApplicationEventPublisher.class);
+        service = new AuthService(authenticationManager, jwtService, passwordEncoder, users, events);
     }
 
     @Test
@@ -50,6 +53,17 @@ class AuthServiceTests {
         verify(users).save(user.capture());
         assertEquals(Role.USER, user.getValue().getRole());
         assertEquals("reader@example.com", user.getValue().getEmail());
+        verify(events).publishEvent(new TransactionalMail.Welcome("reader@example.com"));
+    }
+
+    @Test
+    void duplicateRegistrationDoesNotPublishWelcome() {
+        when(users.existsByEmail("reader@example.com")).thenReturn(true);
+
+        assertThrows(IllegalArgumentException.class,
+                () -> service.register(new RegisterRequest("reader", "reader@example.com", "long-password", true)));
+
+        org.mockito.Mockito.verifyNoInteractions(events);
     }
 
     @Test

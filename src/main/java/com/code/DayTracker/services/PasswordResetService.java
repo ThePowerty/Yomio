@@ -10,48 +10,46 @@ import java.security.SecureRandom;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Base64;
+import java.util.Locale;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Service
 public class PasswordResetService {
 
     private static final SecureRandom RANDOM = new SecureRandom();
-    private static final Logger LOGGER = LoggerFactory.getLogger(PasswordResetService.class);
     private final UserRepository users;
     private final PasswordResetTokenRepository tokens;
     private final PasswordEncoder passwordEncoder;
-    private final PasswordResetNotifier notifier;
+    private final ApplicationEventPublisher events;
 
     public PasswordResetService(UserRepository users, PasswordResetTokenRepository tokens,
-                                PasswordEncoder passwordEncoder, PasswordResetNotifier notifier) {
+                                PasswordEncoder passwordEncoder, ApplicationEventPublisher events) {
         this.users = users;
         this.tokens = tokens;
         this.passwordEncoder = passwordEncoder;
-        this.notifier = notifier;
+        this.events = events;
     }
 
     @Transactional
     public void requestReset(String email) {
-        users.findByEmail(email.trim().toLowerCase()).ifPresent(user -> {
+        users.findByEmail(email.trim().toLowerCase(Locale.ROOT)).ifPresent(user -> {
             tokens.deleteAllByUser(user);
             byte[] bytes = new byte[32];
             RANDOM.nextBytes(bytes);
             String rawToken = Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
             tokens.save(new PasswordResetToken(user, hash(rawToken), Instant.now().plus(15, ChronoUnit.MINUTES)));
-            try {
-                notifier.sendResetLink(user.getEmail(), rawToken);
-            } catch (RuntimeException exception) {
-                LOGGER.error("Password reset delivery failed type={}", exception.getClass().getSimpleName());
-            }
+            events.publishEvent(new TransactionalMail.PasswordReset(user.getEmail(), rawToken));
         });
     }
 
     @Transactional
     public void confirmReset(String rawToken, String newPassword) {
+        if (newPassword.getBytes(StandardCharsets.UTF_8).length > 72) {
+            throw new IllegalArgumentException("Password exceeds the maximum length");
+        }
         PasswordResetToken token = tokens.findByTokenHash(hash(rawToken))
                 .orElseThrow(() -> new IllegalArgumentException("Invalid or expired reset token"));
         Instant now = Instant.now();

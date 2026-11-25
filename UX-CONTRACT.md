@@ -62,6 +62,7 @@ Catalog and recommendation grids use bounded pagination in complete visual rows.
 | Change user role | User row → role action → explicit confirmation | Final action busy | Stay in dashboard | Row and admin totals update | Keep dialog open with selected role |
 | Resolve contact message | Message action | Disable active message action | Stay in dashboard | Pending count updates | Preserve message; retry |
 | Enter public product page | Direct visit to `/` while signed out | Complete first fold | Auth/register or internal section | Visible destination | Custom 404 for unknown routes |
+| Recover account | Sign-in → Forgot your password or email link → `/reset-password` | Submit disabled | Same page with sign-in link | `Notice`, without revealing whether the email exists | Retry or request a new link |
 | Choose analytics | Consent banner when GA is configured | No blocking state | Stay on current route | Banner closes | Reopen requires clearing saved preference |
 | Renew session | Expiry dialog | Renewal action busy | Stay on current route | Dialog closes after new JWT | Expired/invalid JWT returns to auth with persistent notice |
 | Delete account | Profile settings → two confirmations → typed username | Final danger action busy | Public auth route | Persistent deletion notice | Keep final confirmation open with retry/cancel |
