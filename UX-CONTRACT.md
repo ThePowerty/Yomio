@@ -73,6 +73,10 @@ Catalog and recommendation grids use bounded pagination in complete visual rows.
 
 The sidebar becomes an overlay below 1040px. The application owns one content scroll region. Story workspace columns collapse below 760px; actions remain visible without hover. Focus must not be hidden behind the top bar. Below 480px, the authenticated top bar reflows into two rows so every action remains visible and the page title may wrap; destructive tracking confirmations stack above their actions.
 
+Tracking shows the library first and stacks recommendations below it when the available content width is 50rem or less. Card actions wrap independently of the title. The catalog picker has one scroll region on mobile and restores focus to its trigger on close.
+
+Movie tracking uses the existing status contract with movie-specific labels. The form derives progress from the selected status. Movies saved to watch later belong to the wishlist.
+
 `ADMIN` users receive an Administration link immediately beside the profile control; the link is absent for other roles and `/admin` remains protected on both client and server. The dashboard uses server pagination for accounts and horizontal table overflow on narrow screens. User search state remains route-local because it may contain an email address and must not enter browser history, analytics or shareable URLs.
 
 The public root owns a sticky header, meaningful internal anchors and an above-fold primary CTA. Below 640px, a fixed mobile CTA becomes visible only once the hero CTA is outside the viewport. Unknown client routes render the branded 404 with recovery links and `noindex,nofollow`; public privacy, terms and legal-notice routes remain reachable without authentication.

@@ -3,6 +3,7 @@
 .media-detail-hero { display: grid; grid-template-columns: 190px 1fr; gap: 24px; align-items: start; }
 .media-detail-cover { width: 100%; aspect-ratio: 2 / 3; object-fit: cover; border-radius: 8px; background: #e8edf0; }
 .media-detail-copy { display: grid; gap: 12px; align-content: start; }
+.media-detail-copy { min-width: 0; overflow-wrap: anywhere; }
 .media-detail-copy h2 { font-size: clamp(1.6rem, 3vw, 2.5rem); }
 .media-detail-meta, .media-detail-genres { color: #44736b; font-weight: 700; }
 .media-detail-original-title { color: #60707a; font-style: italic; }
@@ -17,7 +18,7 @@
 .registration-modal { width: min(720px, 100%); max-height: calc(100dvh - 48px); overflow: auto; border: 1px solid #d9e1e4; border-radius: 12px; background: #f7f9fa; box-shadow: 0 24px 70px rgba(16, 24, 28, .32); }
 .registration-modal-header { position: sticky; z-index: 2; top: 0; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 20px 22px; border-bottom: 1px solid #dfe5e8; background: rgba(247, 249, 250, .97); }
 .registration-modal-header h2 { margin-top: 4px; font-size: 1.35rem; }
-.registration-modal-header p { margin-top: 4px; color: #60707a; font-size: .86rem; }
+.registration-modal-header p { margin-top: 4px; color: #60707a; font-size: .86rem; overflow-wrap: anywhere; }
 .registration-form { display: grid; gap: 18px; padding: 20px 22px 22px; }
 .registration-progress-grid { display: grid; grid-template-columns: .8fr 1.2fr; gap: 14px; align-items: stretch; }
 .available-unit-card { display: grid; place-items: center; align-content: center; gap: 3px; min-height: 112px; padding: 14px; border: 1px solid #d6e1df; border-radius: 8px; color: #52616b; background: #edf5f3; text-align: center; }

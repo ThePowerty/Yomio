@@ -72,6 +72,7 @@ export function CatalogMediaDetailPage() {
   }, [registrationOpen, loading]);
 
   const isVideo = media?.type === "ANIME" || media?.type === "MOVIE";
+  const isMovie = media?.type === "MOVIE";
   const isReleasing = media?.status?.toUpperCase() === "RELEASING";
   const knownTotal = isVideo ? media?.episodes : media?.chapters;
   const maximumUnit = Number((isReleasing ? media?.latestReleasedUnit : knownTotal || media?.latestReleasedUnit)) || 0;
@@ -102,7 +103,9 @@ export function CatalogMediaDetailPage() {
       ...form,
       readingStatus,
       finished: completed,
-      currentChapter: (completed || atLatestRelease) && maximumUnit > 0 ? maximumUnit : form.currentChapter
+      currentChapter: completed && isMovie ? maximumUnit || 1
+        : (completed || atLatestRelease) && maximumUnit > 0 ? maximumUnit
+        : isMovie ? 0 : form.currentChapter
     });
     setFormError("");
   }
@@ -143,7 +146,7 @@ export function CatalogMediaDetailPage() {
   if (detailLoading) return <LoadingSkeleton variant="detail" label={t("common.loading")} />;
   if (!media) return <div className="empty"><BookOpen size={34} /><p>{t("detail.notFound")}</p></div>;
 
-  const activeStatusLabel = isVideo ? t("detail.watching") : t("detail.reading");
+  const activeStatusLabel = isMovie ? t("movieStatus.READING") : isVideo ? t("detail.watching") : t("detail.reading");
   const unitLabel = isVideo ? t("detail.episode") : t("detail.chapter");
 
   return (
@@ -204,13 +207,13 @@ export function CatalogMediaDetailPage() {
                 <select ref={statusRef} value={form.readingStatus} onChange={(event) => changeReadingStatus(event.target.value)}>
                   <option value="READING">{activeStatusLabel}</option>
                   {isReleasing
-                    ? <option value="UP_TO_DATE" disabled={maximumUnit === 0}>{t("detail.upToDate")}</option>
-                    : <option value="COMPLETED">{t("detail.finished")}</option>}
-                  <option value="DROPPED">{t("detail.dropped")}</option>
+                    ? <option value="UP_TO_DATE" disabled={maximumUnit === 0}>{t(isMovie ? "movieStatus.UP_TO_DATE" : "detail.upToDate")}</option>
+                    : <option value="COMPLETED">{t(isMovie ? "movieStatus.COMPLETED" : "detail.finished")}</option>}
+                  <option value="DROPPED">{t(isMovie ? "movieStatus.DROPPED" : "detail.dropped")}</option>
                 </select>
               </label>
 
-              <div className="registration-progress-grid">
+              {!isMovie && <div className="registration-progress-grid">
                 <div className="available-unit-card">
                   <span>{limitKind === "total" ? t("detail.totalAvailable", { unit: unitLabel }) : t("detail.latestAvailable", { unit: unitLabel })}</span>
                   <strong>{maximumUnit || "—"}</strong>
@@ -223,12 +226,12 @@ export function CatalogMediaDetailPage() {
                     aria-invalid={Boolean(formError)} aria-describedby={formError ? "registration-error" : "registration-progress-help"} />
                   <small id="registration-progress-help">{maximumUnit > 0 ? t("detail.progressLimit", { max: maximumUnit }) : t("detail.progressNoLimit")}</small>
                 </label>
-              </div>
+              </div>}
 
-              <div className="registration-progress" aria-label={t("modal.progress") }>
+              {!isMovie && <div className="registration-progress" aria-label={t("modal.progress") }>
                 <span>{t("modal.progress")}</span><strong>{progress}%</strong>
                 <div><span style={{ width: `${progress}%` }} /></div>
-              </div>
+              </div>}
 
               <label>
                 {t("modal.notes")}
@@ -293,6 +296,6 @@ function mediaTypeLabel(type, t) {
 function buildMetadata(media, t) {
   const video = media.type === "ANIME" || media.type === "MOVIE";
   const total = video ? media.episodes : media.chapters;
-  return [media.startYear || media.seasonYear, total ? `${total} ${video ? t("common.episodesShort") : t("common.chaptersShort")}` : null, media.status, media.averageScore ? `${media.averageScore}/100` : null]
+  return [media.startYear || media.seasonYear, total && media.type !== "MOVIE" ? `${total} ${video ? t("common.episodesShort") : t("common.chaptersShort")}` : null, media.status, media.averageScore ? `${media.averageScore}/100` : null]
     .filter(Boolean).join(" · ");
 }

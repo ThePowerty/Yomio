@@ -30,31 +30,29 @@ export function TrackingPage() {
   return (
     <section className="tracking-page page-stack">
       <div className="tracking-layout">
-        <div className="panel">
-        <div className="panel-header">
-          <div>
+        <div className="panel tracking-library">
+          <div className="panel-header">
             <span className="eyebrow">{t("tracking.library")}</span>
+            <button type="button" className="primary" onClick={openNewTracking}>
+              <Plus size={18} aria-hidden="true" /> {t("tracking.newTracking")}
+            </button>
           </div>
-          <button type="button" className="primary" onClick={openNewTracking}>
-            <Plus size={18} /> {t("tracking.newTracking")}
-          </button>
-        </div>
-        <Notice message={status} onClose={clearStatus} />
+          <Notice message={status} onClose={clearStatus} />
 
-        <section className="list">
-          {initialLoading ? (
-            <LoadingSkeleton variant="list" count={5} label={t("common.loading")} />
-          ) : items.length === 0 ? (
-            <div className="empty">
-              <BookOpen size={34} />
-              <p>{t("tracking.empty")}</p>
-            </div>
-          ) : (
-            items.map((item) => (
-              <TrackCard key={item.id} item={item} onEdit={editItem} onDelete={deleteItem} />
-            ))
-          )}
-        </section>
+          <section className="list" aria-label={t("tracking.library")}>
+            {initialLoading ? (
+              <LoadingSkeleton variant="list" count={5} label={t("common.loading")} />
+            ) : items.length === 0 ? (
+              <div className="empty">
+                <BookOpen size={34} aria-hidden="true" />
+                <p>{t("tracking.empty")}</p>
+              </div>
+            ) : (
+              items.map((item) => (
+                <TrackCard key={item.id} item={item} onEdit={editItem} onDelete={deleteItem} />
+              ))
+            )}
+          </section>
         </div>
 
         <aside className="panel tracking-recommendations-panel" aria-label={t("tracking.recommendationsTitle")}>

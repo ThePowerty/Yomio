@@ -45,3 +45,9 @@
   .community-toolbar { align-items: flex-start; flex-direction: column; }
   .comment-card.reply { margin-left: 14px; }
 }
+
+@media (max-width: 420px) {
+  .story-tabs { flex-wrap: wrap; }
+  .story-tabs button { flex: 1 1 auto; min-height: 44px; padding-inline: 8px; }
+  .comment-card footer { flex-wrap: wrap; }
+}

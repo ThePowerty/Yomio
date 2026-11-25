@@ -267,6 +267,8 @@ body :is(
   gap: 16px;
 }
 
+.page-stack { grid-template-columns: minmax(0, 1fr); }
+
 label {
   display: grid;
   gap: 7px;
@@ -428,7 +430,7 @@ textarea {
   height: 100dvh;
   min-width: 0;
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr) auto;
+  grid-template-rows: auto minmax(min-content, 1fr) auto;
   gap: 22px;
   padding: 22px;
   overflow-y: auto;
@@ -1224,20 +1226,30 @@ textarea {
 }
 
 .track-card {
-  display: grid;
-  grid-template-columns: 1fr auto;
+  display: flex;
+  flex-wrap: wrap;
   gap: 12px;
   padding: 16px;
   box-shadow: none;
 }
 
-.track-actions { display: flex; gap: 6px; align-items: start; }
-.track-rating-action { white-space: nowrap; }
-.track-delete-confirm{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px;border:1px solid #e5c7c1;border-radius:8px;background:#fff7f5}.track-delete-confirm>div{display:flex;gap:7px}.track-delete-confirm button{min-height:36px;padding:0 12px;border-radius:7px;font-weight:800}
+.track-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: start;
+  gap: 6px;
+  max-width: 100%;
+}
+
+.track-actions .icon-button,
+.track-actions .track-rating-action { min-height: 44px; }
+.track-rating-action { max-width: 100%; text-align: start; }
+.track-delete-confirm{flex:1 0 100%;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;min-width:0;padding:10px 12px;border:1px solid #e5c7c1;border-radius:8px;background:#fff7f5;overflow-wrap:anywhere}.track-delete-confirm>div{display:flex;gap:7px}.track-delete-confirm button{min-height:36px;padding:0 12px;border-radius:7px;font-weight:800}
 
 .track-main {
+  flex: 1 1 15rem;
   min-width: 0;
-  cursor: pointer;
+  overflow-wrap: anywhere;
 }
 
 .track-meta {
@@ -1318,8 +1330,9 @@ textarea {
 }
 
 @media (max-width: 1040px) {
-  .app-layout {
-    grid-template-columns: 1fr;
+  .app-layout,
+  .app-layout.sidebar-collapsed {
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .sidebar {
@@ -1327,13 +1340,14 @@ textarea {
     position: fixed;
     z-index: 40;
     inset: 0 auto 0 0;
-    grid-template-rows: auto minmax(0, 1fr) auto;
+    visibility: hidden;
     transform: translateX(-100%);
     transition: transform 180ms ease;
     box-shadow: 18px 0 42px rgba(12, 19, 23, 0.26);
   }
 
   .sidebar-mobile-open .sidebar {
+    visibility: visible;
     transform: translateX(0);
   }
 
@@ -1413,10 +1427,8 @@ textarea {
   }
 
   .topbar-heading h1 {
-    max-width: 28vw;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    font-size: clamp(1.4rem, 4.4vw, 2rem);
+    overflow-wrap: anywhere;
   }
 
   .topbar-actions {
@@ -1458,10 +1470,7 @@ textarea {
   }
 
   .topbar-heading h1 {
-    max-width: none;
-    overflow: visible;
-    text-overflow: clip;
-    white-space: normal;
+    font-size: clamp(1.4rem, 6vw, 2rem);
   }
 
   .topbar-actions {

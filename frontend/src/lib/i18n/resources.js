@@ -63,6 +63,8 @@ export const resources = {
         collapseMenu: "Contraer menu",
         expandMenu: "Expandir menu",
         closeMenu: "Cerrar menu",
+        openMenu: "Abrir menú",
+        profileMenu: "Menú de perfil",
         settings: "Configuracion",
         logoutFirstTitle: "¿Quieres cerrar sesion?",
         logoutFirstMessage: "Tu sesion actual se cerrara en este dispositivo.",
@@ -189,6 +191,7 @@ export const resources = {
         review: "Reseña",
         rateChapters: "Valorar capítulos",
         rateEpisodes: "Valorar episodios",
+        rateMovie: "Valorar película",
         openStoryTools: "Abrir notas y comunidad",
         editProgress: "Editar progreso",
         recommendationsEyebrow: "Para continuar",
@@ -279,6 +282,7 @@ export const resources = {
         title: "Titulo",
         type: "Tipo",
         currentChapter: "Capitulos leidos",
+        clearSearch: "Limpiar búsqueda",
         readingStatus: "Estado de lectura",
         progress: "Progreso",
         totalChapters: "Capitulos totales",
@@ -341,6 +345,14 @@ export const resources = {
         ratingOptional: "Opcional · del 1 al 10",
         saveRegistration: "Guardar registro",
         notFound: "No se encontro el titulo solicitado."
+      },
+      movieStatus: {
+        READING: "A medias",
+        PAUSED: "La retomaré",
+        COMPLETED: "Vista",
+        DROPPED: "Dejé de verla",
+        UP_TO_DATE: "Al día con el estreno",
+        PLAN_TO_READ: "Por ver"
       },
       readingStatus: {
         PLAN_TO_READ: "Pendiente",
@@ -514,6 +526,8 @@ export const resources = {
         collapseMenu: "Collapse menu",
         expandMenu: "Expand menu",
         closeMenu: "Close menu",
+        openMenu: "Open menu",
+        profileMenu: "Profile menu",
         settings: "Settings",
         logoutFirstTitle: "Do you want to log out?",
         logoutFirstMessage: "Your current session will be closed on this device.",
@@ -640,6 +654,7 @@ export const resources = {
         review: "Review",
         rateChapters: "Rate chapters",
         rateEpisodes: "Rate episodes",
+        rateMovie: "Rate movie",
         openStoryTools: "Open notes and community",
         editProgress: "Edit progress",
         recommendationsEyebrow: "Keep exploring",
@@ -730,6 +745,7 @@ export const resources = {
         title: "Title",
         type: "Type",
         currentChapter: "Chapters read",
+        clearSearch: "Clear search",
         readingStatus: "Reading status",
         progress: "Progress",
         totalChapters: "Total chapters",
@@ -792,6 +808,14 @@ export const resources = {
         ratingOptional: "Optional · from 1 to 10",
         saveRegistration: "Save log",
         notFound: "The requested title was not found."
+      },
+      movieStatus: {
+        READING: "Partway through",
+        PAUSED: "Will resume",
+        COMPLETED: "Watched",
+        DROPPED: "Stopped watching",
+        UP_TO_DATE: "Caught up with the release",
+        PLAN_TO_READ: "To watch"
       },
       readingStatus: {
         PLAN_TO_READ: "Plan to read",

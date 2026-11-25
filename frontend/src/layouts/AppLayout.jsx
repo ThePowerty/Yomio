@@ -28,6 +28,7 @@ const titlesByPath = {
 };
 
 const THEME_STORAGE_KEY = "daytracker_theme";
+const MOBILE_NAVIGATION = "(max-width: 1040px)";
 
 function getInitialTheme() {
   try {
@@ -56,12 +57,15 @@ function AppShell({ children }) {
   const location = useLocation();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileNavigation, setMobileNavigation] = useState(() => window.matchMedia(MOBILE_NAVIGATION).matches);
   const [profileOpen, setProfileOpen] = useState(false);
   const [logoutStep, setLogoutStep] = useState(0);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [theme, setTheme] = useState(getInitialTheme);
   const [legalDocument, setLegalDocument] = useState(null);
   const profileMenuRef = useRef(null);
+  const sidebarRef = useRef(null);
+  const sidebarToggleRef = useRef(null);
   const layoutRef = useRef(null);
   const themeToggleRef = useRef(null);
   const themeWashRef = useRef(null);
@@ -94,6 +98,32 @@ function AppShell({ children }) {
   }, [location.pathname]);
 
   useEffect(() => {
+    const query = window.matchMedia(MOBILE_NAVIGATION);
+    function updateNavigation() {
+      setMobileNavigation(query.matches);
+      if (!query.matches) setMobileMenuOpen(false);
+    }
+    query.addEventListener("change", updateNavigation);
+    return () => query.removeEventListener("change", updateNavigation);
+  }, []);
+
+  useEffect(() => {
+    if (!mobileMenuOpen) return undefined;
+    const sidebar = sidebarRef.current;
+    const navigation = sidebar.querySelector(".page-nav");
+    const target = navigation.querySelector('[aria-current="page"]') ?? navigation.querySelector("a");
+    function focusNavigation() {
+      if (document.activeElement === sidebarToggleRef.current || document.activeElement === document.body) target?.focus();
+    }
+    sidebar.addEventListener("transitionend", focusNavigation, { once: true });
+    const timer = window.setTimeout(focusNavigation, 220);
+    return () => {
+      sidebar.removeEventListener("transitionend", focusNavigation);
+      window.clearTimeout(timer);
+    };
+  }, [mobileMenuOpen]);
+
+  useEffect(() => {
     document.documentElement.dataset.appTheme = theme;
     return () => {
       delete document.documentElement.dataset.appTheme;
@@ -103,6 +133,7 @@ function AppShell({ children }) {
   useEffect(() => {
     function closeMenus(event) {
       if (event.key === "Escape") {
+        if (layoutRef.current?.classList.contains("sidebar-mobile-open")) sidebarToggleRef.current?.focus();
         setMobileMenuOpen(false);
         setProfileOpen(false);
         setLogoutStep(0);
@@ -178,18 +209,25 @@ function AppShell({ children }) {
   });
 
   function toggleSidebar() {
-    if (window.matchMedia("(max-width: 1040px)").matches) {
+    if (mobileNavigation) {
       setMobileMenuOpen((open) => !open);
       return;
     }
     setSidebarCollapsed((collapsed) => !collapsed);
   }
 
+  const sidebarLabel = mobileNavigation
+    ? t(mobileMenuOpen ? "layout.closeMenu" : "layout.openMenu")
+    : t(sidebarCollapsed ? "layout.expandMenu" : "layout.collapseMenu");
+
   return (
     <main ref={layoutRef} className={`app-layout${sidebarCollapsed ? " sidebar-collapsed" : ""}${mobileMenuOpen ? " sidebar-mobile-open" : ""}`} data-theme={theme}>
       <div ref={themeWashRef} className="theme-transition-wash" aria-hidden="true" />
-      <button className="sidebar-backdrop" type="button" aria-label={t("layout.closeMenu")} onClick={() => setMobileMenuOpen(false)} />
-      <aside className="sidebar" aria-label={t("layout.pages")}>
+      <button className="sidebar-backdrop" type="button" aria-label={t("layout.closeMenu")} onClick={() => {
+        setMobileMenuOpen(false);
+        sidebarToggleRef.current?.focus();
+      }} />
+      <aside ref={sidebarRef} className="sidebar" aria-label={t("layout.pages")}>
         <div className="sidebar-header">
           <div className="brand">
             <img className="brand-mark" src={publicPath("yomio-icono.png")} alt={t("common.appName")} />
@@ -222,8 +260,9 @@ function AppShell({ children }) {
       <section className="app-content">
         <header className="topbar">
           <div className="topbar-heading">
-            <button className="icon-button sidebar-toggle" type="button" onClick={toggleSidebar}
-              title={sidebarCollapsed ? t("layout.expandMenu") : t("layout.collapseMenu")}
+            <button ref={sidebarToggleRef} className="icon-button sidebar-toggle" type="button" onClick={toggleSidebar}
+              title={sidebarLabel} aria-label={sidebarLabel}
+              aria-expanded={mobileNavigation ? mobileMenuOpen : !sidebarCollapsed}
               aria-controls="main-navigation">
               <Menu className="mobile-menu-icon" size={20} />
               {sidebarCollapsed ? <PanelLeftOpen className="desktop-menu-icon" size={20} /> : <PanelLeftClose className="desktop-menu-icon" size={20} />}
@@ -258,7 +297,7 @@ function AppShell({ children }) {
               <button className="profile-trigger" type="button" onClick={() => {
                 setProfileOpen((open) => !open);
                 setLogoutStep(0);
-              }} aria-expanded={profileOpen} aria-haspopup="menu">
+              }} aria-expanded={profileOpen} aria-haspopup="menu" aria-label={t("layout.profileMenu")}>
                 <span className="profile-avatar" aria-hidden="true">{user.username?.charAt(0).toUpperCase() || <UserRound size={18} />}</span>
                 <span className="profile-trigger-copy">
                   <strong>{user.username}</strong>

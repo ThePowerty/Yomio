@@ -18,33 +18,41 @@
   justify-content: flex-end;
 }
 
-.modal-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 40;
-  display: grid;
-  place-items: center;
-  padding: 24px;
+.tracking-modal::backdrop {
   background: rgba(22, 29, 34, 0.54);
 }
 
 .tracking-modal {
-  width: min(980px, 100%);
+  width: min(980px, calc(100% - 48px));
   max-height: min(860px, calc(100dvh - 48px));
+  margin: auto;
   overflow: auto;
-  padding: 20px;
+  overscroll-behavior: contain;
+  padding: 0;
+  border: 1px solid var(--color-border);
   border-radius: 8px;
-  background: #ffffff;
+  color: var(--color-ink);
+  background: var(--color-surface);
   box-shadow: 0 26px 70px rgba(19, 28, 35, 0.26);
 }
 
 .tracking-modal-header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  margin-bottom: 18px;
+  padding: 16px 20px;
+  background: inherit;
+  border-bottom: 1px solid var(--color-border);
 }
+
+.tracking-modal-header h2 { overflow-wrap: anywhere; }
+
+.tracking-modal > :is(.catalog-picker, .tracking-modal-form) { padding: 16px 20px 20px; }
+.tracking-modal-form :is(.grid-2, label, input, select, textarea) { min-width: 0; }
 
 .modal-hint {
   margin-top: 6px;
@@ -63,6 +71,16 @@
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 10px;
 }
+
+.catalog-picker-query {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.catalog-picker-query input { min-width: 0; }
+.catalog-picker-search > label { margin-bottom: 6px; }
 
 .segmented-control {
   display: inline-grid;
@@ -91,7 +109,7 @@
 
 .catalog-picker-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 270px), 1fr));
   gap: 10px;
   max-height: 300px;
   overflow: auto;
@@ -164,19 +182,26 @@
 }
 
 @media (max-width: 640px) {
-  .modal-backdrop {
-    padding: 12px;
-    align-items: end;
-  }
-
   .tracking-modal {
+    width: calc(100% - 24px);
     max-height: calc(100dvh - 24px);
-    padding: 16px;
   }
 
-  .catalog-picker-row,
-  .segmented-control {
-    grid-template-columns: 1fr;
-    width: 100%;
+  .tracking-modal-header,
+  .tracking-modal > :is(.catalog-picker, .tracking-modal-form) {
+    padding-inline: 14px;
   }
+
+  .segmented-control {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 4.75rem), 1fr));
+  }
+
+  .segmented-control button { min-height: 44px; padding-inline: 4px; }
+  .catalog-picker-list { max-height: none; overflow: visible; padding-right: 0; }
+  .tracking-form-actions { flex-wrap: wrap; }
+}
+
+@media (max-width: 420px) {
+  .catalog-picker-row { grid-template-columns: minmax(0, 1fr); }
+  .tracking-form-actions > button { flex: 1 1 8rem; }
 }

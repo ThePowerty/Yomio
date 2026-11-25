@@ -1,11 +1,19 @@
 import { BookOpen, Search, Save, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useTracker } from "../../context/TrackerContext";
 import { Notice } from "../Notice/Notice";
 import { LoadingSkeleton } from "../LoadingSkeleton/LoadingSkeleton";
 import "./TrackingEditorModal.css";
+
+const CATALOG_TYPES = [
+  ["", "common.all"],
+  ["ANIME", "common.anime"],
+  ["MANGA", "common.manga"],
+  ["MANHWA", "common.manhwa"],
+  ["MOVIE", "common.movie"]
+];
 
 export function TrackingEditorModal() {
   const { t } = useTranslation();
@@ -26,11 +34,32 @@ export function TrackingEditorModal() {
   const [type, setType] = useState("");
   const [results, setResults] = useState([]);
   const [catalogLoading, setCatalogLoading] = useState(false);
+  const dialogRef = useRef(null);
+  const queryRef = useRef(null);
+  const searchGeneration = useRef(0);
+  const isMovie = form.type === "MOVIE";
+
+  useEffect(() => {
+    if (!editorOpen) return undefined;
+    const dialog = dialogRef.current;
+    const trigger = document.activeElement;
+    dialog.showModal();
+    if (!editingId) queryRef.current?.focus();
+
+    return () => {
+      dialog.close();
+      if (trigger?.isConnected) trigger.focus();
+    };
+  }, [editorOpen, editingId]);
 
   useEffect(() => {
     if (editorOpen && !editingId) {
+      setQuery("");
+      setType("");
+      setResults([]);
       searchCatalog("", "");
     }
+    return () => { searchGeneration.current += 1; };
   }, [editorOpen, editingId]);
 
   if (!editorOpen) {
@@ -38,8 +67,10 @@ export function TrackingEditorModal() {
   }
 
   async function searchCatalog(searchTerm = query.trim(), mediaType = type) {
+    const generation = ++searchGeneration.current;
     setCatalogLoading(true);
     const data = await loadCatalog(searchTerm, mediaType);
+    if (generation !== searchGeneration.current) return;
     setResults(data);
     setCatalogLoading(false);
   }
@@ -68,7 +99,9 @@ export function TrackingEditorModal() {
       ...form,
       readingStatus,
       finished: completed,
-      currentChapter: (completed || atLatestRelease) && maximumUnit ? maximumUnit : form.currentChapter
+      currentChapter: completed && isMovie ? maximumUnit || 1
+        : (completed || atLatestRelease) && maximumUnit ? maximumUnit
+        : isMovie ? 0 : form.currentChapter
     });
   }
 
@@ -86,15 +119,17 @@ export function TrackingEditorModal() {
   }
 
   return (
-    <div className="modal-backdrop" role="presentation">
-      <section className="tracking-modal" role="dialog" aria-modal="true" aria-labelledby="tracking-modal-title">
+    <dialog ref={dialogRef} className="tracking-modal" aria-labelledby="tracking-modal-title" onCancel={(event) => {
+      event.preventDefault();
+      if (!editingId || !loading) closeEditor();
+    }}>
         <header className="tracking-modal-header">
           <div>
             <span className="eyebrow">{editingId ? t("modal.eyebrow") : t("modal.stepOne")}</span>
             <h2 id="tracking-modal-title">{editingId ? t("modal.editTitle") : t("modal.chooseTitle")}</h2>
             {!editingId && <p className="modal-hint">{t("modal.chooseHint")}</p>}
           </div>
-          <button type="button" className="icon-button" onClick={closeEditor} title={t("common.close")}>
+          <button type="button" className="icon-button" onClick={closeEditor} aria-label={t("common.close")} disabled={Boolean(editingId && loading)}>
             <X size={18} />
           </button>
         </header>
@@ -102,37 +137,30 @@ export function TrackingEditorModal() {
         {!editingId && (
           <section className="catalog-picker">
             <form noValidate className="catalog-picker-search" onSubmit={submitSearch}>
-              <label>
-                {t("modal.searchCatalog")}
-                <div className="catalog-picker-row">
-                  <input
-                    value={query}
-                    onChange={(event) => setQuery(event.target.value)}
-                    placeholder={t("modal.searchPlaceholder")}
-                  />
-                  <button className="primary" disabled={catalogLoading}>
-                    <Search size={18} /> {t("common.search")}
-                  </button>
+              <label htmlFor="tracking-catalog-query">{t("modal.searchCatalog")}</label>
+              <div className="catalog-picker-row">
+                <div className="catalog-picker-query">
+                  <input id="tracking-catalog-query" ref={queryRef} value={query}
+                    onChange={(event) => setQuery(event.target.value)} placeholder={t("modal.searchPlaceholder")} />
+                  {query && <button type="button" className="icon-button" aria-label={t("modal.clearSearch")} onClick={() => {
+                    setQuery("");
+                    queryRef.current?.focus();
+                    searchCatalog("", type);
+                  }}><X size={16} aria-hidden="true" /></button>}
                 </div>
-              </label>
+                <button className="primary" type="submit" disabled={catalogLoading}>
+                  <Search size={18} /> {t("common.search")}
+                </button>
+              </div>
             </form>
 
-            <div className="segmented-control" aria-label={t("modal.catalogType")}>
-              <button type="button" className={type === "" ? "active" : ""} onClick={() => changeType("")}>
-                {t("common.all")}
-              </button>
-              <button type="button" className={type === "ANIME" ? "active" : ""} onClick={() => changeType("ANIME")}>
-                {t("common.anime")}
-              </button>
-              <button type="button" className={type === "MANGA" ? "active" : ""} onClick={() => changeType("MANGA")}>
-                {t("common.manga")}
-              </button>
-              <button type="button" className={type === "MANHWA" ? "active" : ""} onClick={() => changeType("MANHWA")}>
-                {t("common.manhwa")}
-              </button>
-              <button type="button" className={type === "MOVIE" ? "active" : ""} onClick={() => changeType("MOVIE")}>
-                {t("common.movie")}
-              </button>
+            <div className="segmented-control" role="group" aria-label={t("modal.catalogType")}>
+              {CATALOG_TYPES.map(([filter, label]) => (
+                <button key={filter} type="button" className={filter === type ? "active" : ""}
+                  aria-pressed={filter === type} onClick={() => changeType(filter)}>
+                  {t(label)}
+                </button>
+              ))}
             </div>
 
             <div className="catalog-picker-list">
@@ -182,11 +210,12 @@ export function TrackingEditorModal() {
             </label>
           </div>
 
-          <div className="grid-2">
+          {!isMovie && <div className="grid-2">
             <label>
               {t("modal.currentChapter")}
               <input
                 type="number"
+                inputMode="numeric"
                 min="0"
                 max={(form.catalogStatus?.toUpperCase() === "RELEASING" ? form.latestReleasedUnit : form.totalChapters || form.latestReleasedUnit) || undefined}
                 value={form.currentChapter}
@@ -199,18 +228,18 @@ export function TrackingEditorModal() {
               {t("modal.totalChapters")}
               <input value={(form.catalogStatus?.toUpperCase() === "RELEASING" ? form.latestReleasedUnit : form.totalChapters || form.latestReleasedUnit) || t("common.noData")} readOnly />
             </label>
-          </div>
+          </div>}
 
           <div className="grid-2">
             <label>
-              {t("modal.readingStatus")}
+              {t(isMovie ? "detail.status" : "modal.readingStatus")}
               <select value={form.readingStatus} onChange={(event) => updateReadingStatus(event.target.value)}>
                 {Object.keys(t("readingStatus", { returnObjects: true })).filter((statusKey) => {
                   if (statusKey === "PLAN_TO_READ") return false;
                   const releasing = form.catalogStatus?.toUpperCase() === "RELEASING";
                   return releasing ? statusKey !== "COMPLETED" : statusKey !== "UP_TO_DATE";
                 }).map((statusKey) => (
-                  <option key={statusKey} value={statusKey}>{t(`readingStatus.${statusKey}`)}</option>
+                  <option key={statusKey} value={statusKey}>{t(`${isMovie ? "movieStatus" : "readingStatus"}.${statusKey}`)}</option>
                 ))}
               </select>
             </label>
@@ -243,7 +272,7 @@ export function TrackingEditorModal() {
           <Notice message={status} onClose={clearStatus} />
 
           <div className="tracking-form-actions">
-            <button type="button" className="ghost" onClick={closeEditor}>
+            <button type="button" className="ghost" onClick={closeEditor} disabled={loading}>
               {t("common.cancel")}
             </button>
             <button className="primary" disabled={loading || !form.title}>
@@ -251,13 +280,13 @@ export function TrackingEditorModal() {
             </button>
           </div>
         </form>}
-      </section>
-    </div>
+    </dialog>
   );
 }
 
 function buildTotal(media, t) {
-  const video = media.type === "ANIME" || media.type === "MOVIE";
+  if (media.type === "MOVIE") return "";
+  const video = media.type === "ANIME";
   const total = video ? media.episodes : media.chapters;
   return total ? ` - ${total} ${video ? t("common.episodesShort") : t("common.chaptersShort")}` : "";
 }
