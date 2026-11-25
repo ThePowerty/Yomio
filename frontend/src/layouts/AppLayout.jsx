@@ -9,6 +9,7 @@ import { AccountSettingsModal } from "../components/AccountSettingsModal/Account
 import { LegalDocumentsModal } from "../components/LegalDocumentsModal/LegalDocumentsModal";
 import { TrackerProvider, useTracker } from "../context/TrackerContext";
 import { useAuth } from "../context/AuthContext";
+import { publicPath } from "../lib/publicPath";
 
 gsap.registerPlugin(useGSAP);
 
@@ -191,9 +192,9 @@ function AppShell({ children }) {
       <aside className="sidebar" aria-label={t("layout.pages")}>
         <div className="sidebar-header">
           <div className="brand">
-            <img className="brand-mark" src="/yomio-icono.png" alt={t("common.appName")} />
+            <img className="brand-mark" src={publicPath("yomio-icono.png")} alt={t("common.appName")} />
             <div className="brand-copy">
-              <img className="brand-logo" src="/yomio-logo-fondo-oscuro.png" alt={t("common.appName")} />
+              <img className="brand-logo" src={publicPath("yomio-logo-fondo-oscuro.png")} alt={t("common.appName")} />
               <span>{user.role}</span>
             </div>
           </div>

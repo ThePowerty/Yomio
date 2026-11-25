@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { BookOpen, Eye, EyeOff, KeyRound, Sparkles, UserPlus } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { Navigate, useLocation, useNavigate } from "react-router-dom";
+import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { Notice } from "../../components/Notice/Notice";
 import { YomioLogoSequence } from "../../components/YomioLogoSequence/YomioLogoSequence";
 import { YomioStoryAmbient } from "../../components/YomioStoryAmbient/YomioStoryAmbient";
 import { trackEvent } from "../../services/analytics";
+import { publicPath } from "../../lib/publicPath";
 import "./AuthPage.css";
 
 export function AuthPage() {
@@ -79,7 +80,7 @@ export function AuthPage() {
       </section>
       <section className="auth-panel surface">
         <div className="auth-heading">
-          <img className="auth-logo" src="/yomio-logo-fondo-claro.png" alt={t("common.appName")} />
+          <img className="auth-logo" src={publicPath("yomio-logo-fondo-claro.png")} alt={t("common.appName")} />
           <h1>{authTitle}</h1>
         </div>
 
@@ -145,7 +146,7 @@ export function AuthPage() {
           {mode === "register" && (
             <label className="policy-consent">
               <input type="checkbox" checked={policiesAccepted} onChange={(event) => setPoliciesAccepted(event.target.checked)} />
-              <span>{t("auth.acceptPoliciesPrefix")} <a href="/privacy" target="_blank" rel="noreferrer">{t("auth.privacyPolicy")}</a> {t("auth.and")} <a href="/terms" target="_blank" rel="noreferrer">{t("auth.termsConditions")}</a>.</span>
+              <span>{t("auth.acceptPoliciesPrefix")} <Link to="/privacy" target="_blank" rel="noreferrer">{t("auth.privacyPolicy")}</Link> {t("auth.and")} <Link to="/terms" target="_blank" rel="noreferrer">{t("auth.termsConditions")}</Link>.</span>
             </label>
           )}
 
@@ -157,7 +158,7 @@ export function AuthPage() {
 
         <Notice message={status} onClose={() => setStatus("")} />
         <nav className="auth-legal" aria-label="Información legal">
-          <a href="/privacy">Privacidad</a><span aria-hidden="true">·</span><a href="/terms">Términos y condiciones</a>
+          <Link to="/privacy">Privacidad</Link><span aria-hidden="true">·</span><Link to="/terms">Términos y condiciones</Link>
         </nav>
       </section>
     </main>

@@ -1,6 +1,7 @@
 import { ArrowLeft, ShieldCheck } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { LegalDocumentContent } from "../../components/LegalDocumentContent/LegalDocumentContent";
+import { publicPath } from "../../lib/publicPath";
 import "./LegalPage.css";
 
 export function LegalPage() {
@@ -11,7 +12,7 @@ export function LegalPage() {
     <main className="legal-shell">
       <header className="legal-header">
         <Link to="/" className="legal-back"><ArrowLeft size={18} /> Volver a Yomio</Link>
-        <img src="/yomio-logo-fondo-claro.png" alt="Yomio" />
+        <img src={publicPath("yomio-logo-fondo-claro.png")} alt="Yomio" />
       </header>
       <article className="legal-document">
         <span className="eyebrow"><ShieldCheck size={15} /> Información pública</span>

@@ -8,9 +8,11 @@ import { initializeAnalytics } from "./services/analytics";
 initializeAnalytics();
 
 function App() {
+  const routerBase = import.meta.env.BASE_URL.replace(/\/$/, "") || "/";
+
   return (
     <AuthProvider>
-      <BrowserRouter>
+      <BrowserRouter basename={routerBase}>
         <SeoManager />
         <AppRoutes />
         <AnalyticsConsent />

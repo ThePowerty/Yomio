@@ -18,6 +18,7 @@ import {
   ShieldCheck
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { publicPath } from "../../lib/publicPath";
 import { caseStudies, faqs, verifiedReviews } from "../../content/marketingContent";
 import "./LandingPage.css";
 
@@ -232,7 +233,7 @@ export function LandingPage() {
     <main className="landing-shell" id="top" ref={landingRef}>
       <header className="landing-header">
         <div className="landing-header-inner">
-          <Link className="landing-brand" to="/" aria-label="Yomio, inicio"><img src="/yomio-logo-fondo-oscuro.png" alt="Yomio" /></Link>
+          <Link className="landing-brand" to="/" aria-label="Yomio, inicio"><img src={publicPath("yomio-logo-fondo-oscuro.png")} alt="Yomio" /></Link>
           <nav aria-label="Navegación pública">
             <a href="#como-funciona">Cómo funciona</a>
             <a href="#casos">Casos</a>
@@ -368,7 +369,7 @@ export function LandingPage() {
       </section>
 
       <footer className="landing-footer">
-        <img src="/yomio-logo-fondo-claro.png" alt="Yomio" />
+        <img src={publicPath("yomio-logo-fondo-claro.png")} alt="Yomio" />
         <nav aria-label="Enlaces del pie"><a href="#top">Volver arriba</a><Link to="/privacy">Privacidad</Link><Link to="/terms">Términos y condiciones</Link><Link to="/auth">Acceder</Link></nav>
         <div className="landing-share"><button type="button" onClick={shareYomio}>{shareStatus === "Enlace copiado" ? <Clipboard size={18} /> : <Share2 size={18} />} Compartir Yomio</button><span role="status">{shareStatus}</span></div>
       </footer>

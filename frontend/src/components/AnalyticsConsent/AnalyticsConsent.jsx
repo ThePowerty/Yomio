@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { setAnalyticsConsent, analyticsConsentStatus, analyticsIsConfigured } from "../../services/analytics";
 import "./AnalyticsConsent.css";
 
@@ -17,7 +18,7 @@ export function AnalyticsConsent() {
       <div>
         <strong id="analytics-consent-title">Analítica opcional</strong>
         <p>Google Analytics puede ayudarnos a entender qué recorridos funcionan. No enviamos usuario, email, búsquedas ni contenido privado.</p>
-        <a href="/privacy">Leer la política de privacidad</a>
+        <Link to="/privacy">Leer la política de privacidad</Link>
       </div>
       <div className="analytics-consent-actions">
         <button type="button" className="ghost" onClick={() => choose(false)}>Rechazar</button>

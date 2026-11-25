@@ -1,4 +1,5 @@
 import { ExternalLink } from "lucide-react";
+import { Link } from "react-router-dom";
 import "./LegalDocumentContent.css";
 
 const owner = import.meta.env.VITE_LEGAL_ENTITY_NAME || "[Responsable pendiente de completar]";
@@ -35,7 +36,7 @@ function LegalContent({ onSelectDocument }) {
     {onSelectDocument ? (
       <button className="legal-source" type="button" onClick={() => onSelectDocument("privacy")}><ExternalLink size={16} aria-hidden="true" /> Consultar política de privacidad</button>
     ) : (
-      <a className="legal-source" href="/privacy"><ExternalLink size={16} aria-hidden="true" /> Consultar política de privacidad</a>
+      <Link className="legal-source" to="/privacy"><ExternalLink size={16} aria-hidden="true" /> Consultar política de privacidad</Link>
     )}
   </>;
 }
