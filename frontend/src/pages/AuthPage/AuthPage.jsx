@@ -7,6 +7,7 @@ import { Notice } from "../../components/Notice/Notice";
 import { YomioLogoSequence } from "../../components/YomioLogoSequence/YomioLogoSequence";
 import { YomioStoryAmbient } from "../../components/YomioStoryAmbient/YomioStoryAmbient";
 import { trackEvent } from "../../services/analytics";
+import { waitForApi } from "../../services/api";
 import { publicPath } from "../../lib/publicPath";
 import "./AuthPage.css";
 
@@ -18,11 +19,22 @@ export function AuthPage() {
   const [policiesAccepted, setPoliciesAccepted] = useState(false);
   const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(false);
+  const [apiState, setApiState] = useState("checking");
+  const [startupAttempt, setStartupAttempt] = useState(0);
   const { isAuthenticated, login, register } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const authTitle = mode === "login" ? t("auth.loginTitle") : t("auth.registerTitle");
   const redirectTo = location.state?.from?.pathname || "/";
+
+  useEffect(() => {
+    if (isAuthenticated) return;
+    const controller = new AbortController();
+    waitForApi(controller.signal).then((ready) => {
+      if (!controller.signal.aborted) setApiState(ready ? "ready" : "unavailable");
+    });
+    return () => controller.abort();
+  }, [isAuthenticated, startupAttempt]);
 
   useEffect(() => {
     trackEvent("onboarding_started");
@@ -39,6 +51,7 @@ export function AuthPage() {
 
   async function submitAuth(event) {
     event.preventDefault();
+    if (loading || apiState !== "ready") return;
     setLoading(true);
     setStatus("");
 
@@ -150,12 +163,24 @@ export function AuthPage() {
             </label>
           )}
 
-          <button className="primary" type="submit" disabled={loading || (mode === "register" && !policiesAccepted)}>
+          <button className="primary" type="submit" disabled={apiState !== "ready" || loading || (mode === "register" && !policiesAccepted)}>
             {mode === "login" ? <KeyRound size={18} /> : <UserPlus size={18} />}
             {loading ? t("common.loading") : authTitle}
           </button>
         </form>
 
+        <div className="auth-api-status">
+          <span role="status">
+            {apiState === "checking" && t("auth.apiStarting")}
+            {apiState === "unavailable" && t("auth.apiUnavailable")}
+          </span>
+          {apiState === "unavailable" && (
+            <button className="ghost" type="button" onClick={() => {
+              setApiState("checking");
+              setStartupAttempt((attempt) => attempt + 1);
+            }}>{t("auth.apiRetry")}</button>
+          )}
+        </div>
         <Notice message={status} onClose={() => setStatus("")} />
         {mode === "login" && <div className="auth-legal"><Link to="/reset-password">{t("auth.resetForgot")}</Link></div>}
         <nav className="auth-legal" aria-label="Información legal">

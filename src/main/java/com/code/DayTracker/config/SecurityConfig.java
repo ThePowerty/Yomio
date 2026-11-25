@@ -87,6 +87,10 @@ public class SecurityConfig {
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/api/**", configuration);
+        CorsConfiguration healthConfiguration = new CorsConfiguration();
+        healthConfiguration.setAllowedOrigins(configuration.getAllowedOrigins());
+        healthConfiguration.setAllowedMethods(List.of("GET"));
+        source.registerCorsConfiguration("/actuator/health", healthConfiguration);
         return source;
     }
 

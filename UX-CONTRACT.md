@@ -85,6 +85,8 @@ The release calendar is a read-only monthly display, not a date picker. It conta
 
 Authentication uses a continuous decorative SVG loop of closed book, open pages and final Yomio mark. A second ambient tracking route continuously connects reading, viewing and recommendation nodes behind it. Neither layer delays or covers the form. Reduced-motion users retain the continuous state indication through slow opacity-only crossfades and pulses; page movement, translation, scaling and route travel are removed.
 
+The sign-in and registration screen checks API health when opened. Users can edit fields while waiting. Submission becomes available after the API reports `UP`. If startup times out, an inline message offers reconnection and preserves the form.
+
 ## Async, validation and permission
 
 Mutations are pessimistic and duplicate submits are disabled. JWT access tokens last two hours by default. Five minutes before expiry, a modal offers explicit renewal through the authenticated refresh endpoint; expiry or an authenticated 401 clears local credentials across tabs and returns to authentication with a persistent notice. The server does not silently slide the session. Backend derives the owner from authentication; the client never supplies a user ID. Future community content is absent from default API responses, not merely blurred. Explicit reveal grants read access only. Notes and ratings remain owner-only and future records are excluded after progress reduction.

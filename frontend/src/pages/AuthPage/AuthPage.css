@@ -113,3 +113,9 @@
   .story-copy { padding-right: 68px; }
   .auth-panel { width: calc(100% - 28px); padding: 22px; }
 }
+.auth-api-status {
+  display: grid;
+  gap: 0.5rem;
+  min-block-size: 3em;
+  font-size: 0.875rem;
+}

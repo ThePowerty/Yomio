@@ -1,5 +1,26 @@
 const API_URL = import.meta.env.VITE_API_URL || "";
 const REQUEST_TIMEOUT_MS = 15_000;
+const STARTUP_TIMEOUT_MS = 90_000;
+
+export async function waitForApi(signal) {
+  const deadline = AbortSignal.timeout(STARTUP_TIMEOUT_MS);
+  const startupSignal = AbortSignal.any([signal, deadline]);
+
+  while (!startupSignal.aborted) {
+    try {
+      const response = await fetch(`${API_URL}/actuator/health`, {
+        cache: "no-store",
+        signal: AbortSignal.any([startupSignal, AbortSignal.timeout(REQUEST_TIMEOUT_MS)])
+      });
+      if (response.ok && (await response.json()).status === "UP") return true;
+    } catch {
+      // The hosting proxy may return HTML or fail to connect during startup.
+    }
+
+    if (!startupSignal.aborted) await new Promise((resolve) => window.setTimeout(resolve, 3_000));
+  }
+  return false;
+}
 
 export async function apiRequest(path, options = {}, token = null) {
   const controller = new AbortController();
