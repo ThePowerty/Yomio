@@ -6,6 +6,7 @@ import com.code.DayTracker.dto.UserResponse;
 import com.code.DayTracker.models.AppUser;
 import com.code.DayTracker.repositories.UserRepository;
 import com.code.DayTracker.security.JwtService;
+import java.util.Locale;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,7 +27,7 @@ public class AccountService {
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         String username = request.username().trim();
-        String email = request.email().trim().toLowerCase();
+        String email = request.email().trim().toLowerCase(Locale.ROOT);
         if (userRepository.existsByUsernameAndIdNot(username, user.getId())) {
             throw new IllegalArgumentException("Username already exists");
         }

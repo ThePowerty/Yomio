@@ -59,7 +59,7 @@ La autenticación es stateless. El usuario se obtiene del contexto autenticado y
 
 | Ruta base | Responsabilidad | Acceso |
 | --- | --- | --- |
-| `/api/auth` | Registro, login, renovación y recuperación de contraseña | Público, salvo renovación |
+| `/api/auth` | Registro, login, renovación y recuperación de contraseña | Público, salvo renovación y solicitud desde Ajustes |
 | `/api/account` | Perfil y eliminación de cuenta | Autenticado |
 | `/api/catalog` | Consulta y detalle del catálogo | Lectura pública |
 | `/api/catalog/refresh*` | Actualización del catálogo | `ADMIN` |
@@ -93,6 +93,10 @@ Spring carga de forma opcional el archivo `.env` de la raíz. Las variables prin
 | `BREVO_API_KEY` | Para enviar correo | Clave de la API de Brevo, solo en el backend |
 | `BREVO_MAIL_FROM` | Para enviar correo | Dirección de un remitente verificado en Brevo |
 | `PASSWORD_RESET_BASE_URL` | En producción | URL del formulario de recuperación. En Pages: `https://thepowerty.github.io/Yomio/reset-password` |
+
+`POST /api/auth/login` espera `{"email":"lector@example.com","password":"…"}`. Este contrato sustituye al campo `username` del login. Coordina el despliegue del cliente y de la API. El registro y el sujeto de los JWT siguen usando el nombre de usuario.
+
+`POST /api/auth/password-reset/request` recibe un correo y devuelve el mismo `202` para direcciones registradas y desconocidas. `POST /api/auth/password-reset/account` requiere JWT, no recibe cuerpo y usa el correo guardado del usuario autenticado. El mensaje incluye el enlace al formulario de cambio.
 
 El correo de bienvenida y el de recuperación se envían por HTTPS con Brevo tras confirmar la transacción. Si falta la clave o el remitente, no se envía correo. El transporte SMTP anterior y sus variables ya no se usan. Los fallos de entrega se registran sin destinatario, token ni respuesta del proveedor. La cola vive en memoria y no reintenta envíos. Si falla un correo de recuperación, se puede solicitar otro enlace.
 

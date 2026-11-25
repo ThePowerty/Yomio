@@ -1120,8 +1120,7 @@ textarea {
   .admin-role.role-user,
   .tracking-modal-form input[readonly],
   .tracking-modal-form textarea[readonly],
-  .tracking-modal-form input:disabled,
-  .account-future-section
+  .tracking-modal-form input:disabled
 ) {
   background: var(--color-surface-muted);
 }
@@ -1151,7 +1150,6 @@ textarea {
 .app-layout[data-theme="dark"] :is(
   .notice,
   .manual-spoiler,
-  .future-feature-note,
   .mfa-pending-panel
 ) {
   color: var(--color-warning);

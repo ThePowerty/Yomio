@@ -2,17 +2,19 @@ import { AlertTriangle, KeyRound, Mail, Save, ShieldCheck, Trash2, UserRound, X 
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../../context/AuthContext";
+import { apiRequest } from "../../services/api";
 import "./AccountSettingsModal.css";
 
 export function AccountSettingsModal({ open, onClose }) {
   const modalRef = useRef(null);
   const returnFocusRef = useRef(null);
   const { t } = useTranslation();
-  const { user, updateProfile, deleteAccount } = useAuth();
+  const { user, token, updateProfile, deleteAccount } = useAuth();
   const [form, setForm] = useState({ username: "", email: "" });
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [resetState, setResetState] = useState("idle");
   const [mfaSetupOpen, setMfaSetupOpen] = useState(false);
   const [deleteStep, setDeleteStep] = useState(0);
   const [deleteConfirmation, setDeleteConfirmation] = useState("");
@@ -24,6 +26,7 @@ export function AccountSettingsModal({ open, onClose }) {
     setForm({ username: user.username, email: user.email });
     setMessage("");
     setError("");
+    setResetState((state) => state === "pending" ? state : "idle");
     setMfaSetupOpen(false);
     setDeleteStep(0);
     setDeleteConfirmation("");
@@ -90,6 +93,17 @@ export function AccountSettingsModal({ open, onClose }) {
     }
   }
 
+  async function requestPasswordChange() {
+    if (resetState === "pending" || resetState === "accepted") return;
+    setResetState("pending");
+    try {
+      await apiRequest("/api/auth/password-reset/account", { method: "POST" }, token);
+      setResetState("accepted");
+    } catch {
+      setResetState("error");
+    }
+  }
+
   if (!open) return null;
 
   return (
@@ -132,13 +146,20 @@ export function AccountSettingsModal({ open, onClose }) {
             </button>
           </section>
 
-          <section className="account-section account-future-section">
+          <section className="account-section">
             <div className="account-section-heading">
               <KeyRound size={19} />
               <div><h3>{t("account.passwordTitle")}</h3><p>{t("account.passwordDescription")}</p></div>
             </div>
-            <div className="future-feature-note"><Mail size={18} /><span>{t("account.passwordFuture")}</span></div>
-            <button className="ghost" type="button" disabled>{t("account.requestPasswordChange")}</button>
+            <button className="ghost" type="button" onClick={requestPasswordChange}
+              disabled={saving || resetState === "pending" || resetState === "accepted"}>
+              <Mail size={17} aria-hidden="true" />
+              {t(resetState === "pending" ? "common.loading" : "account.requestPasswordChange")}
+            </button>
+            <div role="status">
+              {resetState === "accepted" && <p className="account-feedback success">{t("account.passwordChangeRequested")}</p>}
+              {resetState === "error" && <p className="account-feedback error">{t("auth.resetRequestError")}</p>}
+            </div>
           </section>
 
           <section className="account-section">

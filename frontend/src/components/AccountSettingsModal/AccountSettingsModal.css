@@ -97,11 +97,6 @@
   background: #faece9;
 }
 
-.account-future-section {
-  background: #fbfcfd;
-}
-
-.future-feature-note,
 .mfa-pending-panel {
   display: flex;
   align-items: flex-start;
@@ -114,7 +109,6 @@
   line-height: 1.45;
 }
 
-.future-feature-note svg,
 .mfa-pending-panel svg {
   flex: 0 0 auto;
 }

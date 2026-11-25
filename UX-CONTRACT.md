@@ -87,6 +87,8 @@ Authentication uses a continuous decorative SVG loop of closed book, open pages 
 
 The sign-in and registration screen checks API health when opened. Users can edit fields while waiting. Submission becomes available after the API reports `UP`. If startup times out, an inline message offers reconnection and preserves the form.
 
+Sign-in uses email and password. Registration still collects a username. Public password recovery asks for email and gives the same confirmation for known and unknown addresses. From account settings, the reset request uses the saved email of the authenticated owner and shows an inline acknowledgement.
+
 ## Async, validation and permission
 
 Mutations are pessimistic and duplicate submits are disabled. JWT access tokens last two hours by default. Five minutes before expiry, a modal offers explicit renewal through the authenticated refresh endpoint; expiry or an authenticated 401 clears local credentials across tabs and returns to authentication with a persistent notice. The server does not silently slide the session. Backend derives the owner from authentication; the client never supplies a user ID. Future community content is absent from default API responses, not merely blurred. Explicit reveal grants read access only. Notes and ratings remain owner-only and future records are excluded after progress reduction.

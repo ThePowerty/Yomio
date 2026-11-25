@@ -43,7 +43,7 @@ public class ApiExceptionHandler {
     public ResponseEntity<ApiError> handleBadCredentials(BadCredentialsException exception, HttpServletRequest request) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(error(request, HttpStatus.UNAUTHORIZED, "INVALID_CREDENTIALS",
-                        "Invalid username or password", Map.of()));
+                        "Invalid email or password", Map.of()));
     }
 
     @ExceptionHandler(AccessDeniedException.class)

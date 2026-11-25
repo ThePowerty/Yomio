@@ -1,5 +1,6 @@
 package com.code.DayTracker.services;
 
+import com.code.DayTracker.models.AppUser;
 import com.code.DayTracker.models.PasswordResetToken;
 import com.code.DayTracker.repositories.PasswordResetTokenRepository;
 import com.code.DayTracker.repositories.UserRepository;
@@ -35,14 +36,21 @@ public class PasswordResetService {
 
     @Transactional
     public void requestReset(String email) {
-        users.findByEmail(email.trim().toLowerCase(Locale.ROOT)).ifPresent(user -> {
-            tokens.deleteAllByUser(user);
-            byte[] bytes = new byte[32];
-            RANDOM.nextBytes(bytes);
-            String rawToken = Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
-            tokens.save(new PasswordResetToken(user, hash(rawToken), Instant.now().plus(15, ChronoUnit.MINUTES)));
-            events.publishEvent(new TransactionalMail.PasswordReset(user.getEmail(), rawToken));
-        });
+        users.findByEmail(email.trim().toLowerCase(Locale.ROOT)).ifPresent(this::issueResetLink);
+    }
+
+    @Transactional
+    public void requestAccountReset(String username) {
+        users.findByUsername(username).ifPresent(this::issueResetLink);
+    }
+
+    private void issueResetLink(AppUser user) {
+        tokens.deleteAllByUser(user);
+        byte[] bytes = new byte[32];
+        RANDOM.nextBytes(bytes);
+        String rawToken = Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
+        tokens.save(new PasswordResetToken(user, hash(rawToken), Instant.now().plus(15, ChronoUnit.MINUTES)));
+        events.publishEvent(new TransactionalMail.PasswordReset(user.getEmail(), rawToken));
     }
 
     @Transactional

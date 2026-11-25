@@ -70,6 +70,19 @@ class PasswordResetServiceTests {
     }
 
     @Test
+    void accountRequestUsesTheEmailOfTheAuthenticatedAccount() {
+        AppUser user = new AppUser("reader", "saved@example.com", "old", Role.USER);
+        when(users.findByUsername("reader")).thenReturn(Optional.of(user));
+
+        service.requestAccountReset("reader");
+
+        var delivery = ArgumentCaptor.forClass(TransactionalMail.PasswordReset.class);
+        verify(events).publishEvent(delivery.capture());
+        assertEquals("saved@example.com", delivery.getValue().email());
+        verify(tokens).save(any(PasswordResetToken.class));
+    }
+
+    @Test
     void confirmationChangesPasswordAndConsumesToken() {
         AppUser user = new AppUser("reader", "reader@example.com", "old", Role.USER);
         PasswordResetToken token = new PasswordResetToken(user, "hash", Instant.now().plusSeconds(300));

@@ -50,6 +50,12 @@ public class AuthController {
         passwordResetService.requestReset(request.email());
     }
 
+    @PostMapping("/password-reset/account")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public void requestAccountPasswordReset(Authentication authentication) {
+        passwordResetService.requestAccountReset(authentication.getName());
+    }
+
     @PostMapping("/password-reset/confirm")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void confirmPasswordReset(@Valid @RequestBody PasswordResetConfirmRequest request) {

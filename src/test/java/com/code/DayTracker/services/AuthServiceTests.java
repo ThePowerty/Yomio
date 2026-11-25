@@ -17,14 +17,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 class AuthServiceTests {
 
-    private AuthenticationManager authenticationManager;
     private JwtService jwtService;
     private PasswordEncoder passwordEncoder;
     private UserRepository users;
@@ -33,12 +30,12 @@ class AuthServiceTests {
 
     @BeforeEach
     void setUp() {
-        authenticationManager = mock(AuthenticationManager.class);
         jwtService = mock(JwtService.class);
         passwordEncoder = mock(PasswordEncoder.class);
         users = mock(UserRepository.class);
         events = mock(ApplicationEventPublisher.class);
-        service = new AuthService(authenticationManager, jwtService, passwordEncoder, users, events);
+        when(passwordEncoder.encode(any(String.class))).thenReturn("dummy-hash");
+        service = new AuthService(jwtService, passwordEncoder, users, events);
     }
 
     @Test
@@ -69,21 +66,27 @@ class AuthServiceTests {
     @Test
     void loginReturnsTokenForValidCredentials() {
         AppUser user = new AppUser("reader", "reader@example.com", "encoded", Role.USER);
-        when(users.findByUsername("reader")).thenReturn(java.util.Optional.of(user));
+        when(users.findByEmail("reader@example.com")).thenReturn(java.util.Optional.of(user));
+        when(passwordEncoder.matches("long-password", "encoded")).thenReturn(true);
         when(jwtService.generateToken(user)).thenReturn("jwt");
 
-        var response = service.login(new LoginRequest("reader", "long-password"));
+        var response = service.login(new LoginRequest("READER@EXAMPLE.COM", "long-password"));
 
         assertEquals("jwt", response.token());
-        verify(authenticationManager).authenticate(any());
+        assertEquals("reader", response.user().username());
     }
 
     @Test
     void loginKeepsCredentialFailureGeneric() {
-        when(authenticationManager.authenticate(any())).thenThrow(mock(AuthenticationException.class));
-
-        assertThrows(BadCredentialsException.class,
-                () -> service.login(new LoginRequest("unknown", "long-password")));
+        AppUser user = new AppUser("reader", "reader@example.com", "encoded", Role.USER);
+        when(users.findByEmail("reader@example.com")).thenReturn(java.util.Optional.of(user));
+        var unknown = assertThrows(BadCredentialsException.class,
+                () -> service.login(new LoginRequest("unknown@example.com", "wrong-password")));
+        var wrongPassword = assertThrows(BadCredentialsException.class,
+                () -> service.login(new LoginRequest("reader@example.com", "wrong-password")));
+        assertEquals(wrongPassword.getMessage(), unknown.getMessage());
+        verify(passwordEncoder).matches("wrong-password", "dummy-hash");
+        org.mockito.Mockito.verifyNoInteractions(jwtService);
     }
 
     @Test

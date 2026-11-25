@@ -8,10 +8,9 @@ import com.code.DayTracker.models.AppUser;
 import com.code.DayTracker.models.Role;
 import com.code.DayTracker.repositories.UserRepository;
 import com.code.DayTracker.security.JwtService;
+import java.util.Locale;
+import java.util.UUID;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -22,20 +21,19 @@ public class AuthService {
 
     private static final String CURRENT_POLICIES_VERSION = "2026-11-18";
 
-    private final AuthenticationManager authenticationManager;
+    private final String dummyPasswordHash;
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final ApplicationEventPublisher events;
 
     public AuthService(
-            AuthenticationManager authenticationManager,
             JwtService jwtService,
             PasswordEncoder passwordEncoder,
             UserRepository userRepository,
             ApplicationEventPublisher events
     ) {
-        this.authenticationManager = authenticationManager;
+        this.dummyPasswordHash = passwordEncoder.encode(UUID.randomUUID().toString());
         this.jwtService = jwtService;
         this.passwordEncoder = passwordEncoder;
         this.userRepository = userRepository;
@@ -47,7 +45,7 @@ public class AuthService {
         if (userRepository.existsByUsername(request.username())) {
             throw new IllegalArgumentException("Unable to create account with these credentials");
         }
-        String normalizedEmail = request.email().trim().toLowerCase(java.util.Locale.ROOT);
+        String normalizedEmail = request.email().trim().toLowerCase(Locale.ROOT);
         if (userRepository.existsByEmail(normalizedEmail)) {
             throw new IllegalArgumentException("Unable to create account with these credentials");
         }
@@ -66,16 +64,12 @@ public class AuthService {
 
     @Transactional(readOnly = true)
     public AuthResponse login(LoginRequest request) {
-        try {
-            authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(request.username(), request.password())
-            );
-        } catch (AuthenticationException exception) {
-            throw new BadCredentialsException("Invalid username or password");
+        AppUser user = userRepository.findByEmail(request.email().trim().toLowerCase(Locale.ROOT)).orElse(null);
+        String passwordHash = user == null ? dummyPasswordHash : user.getPassword();
+        boolean validPassword = passwordEncoder.matches(request.password(), passwordHash);
+        if (!validPassword || user == null) {
+            throw new BadCredentialsException("Invalid email or password");
         }
-
-        AppUser user = userRepository.findByUsername(request.username())
-                .orElseThrow(() -> new BadCredentialsException("Invalid username or password"));
         return new AuthResponse(jwtService.generateToken(user), UserResponse.from(user));
     }
 

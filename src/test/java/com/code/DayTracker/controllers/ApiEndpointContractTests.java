@@ -26,7 +26,7 @@ class ApiEndpointContractTests {
 
         Set<String> expected = Set.of(
                 "/api/auth/register", "/api/auth/login", "/api/auth/password-reset/request",
-                "/api/auth/password-reset/confirm", "/api/account/profile", "/api/catalog",
+                "/api/auth/password-reset/confirm", "/api/auth/password-reset/account", "/api/account/profile", "/api/catalog",
                 "/api/catalog/{id}", "/api/catalog/page", "/api/catalog/refresh",
                 "/api/catalog/refresh-release-progress", "/api/tracks", "/api/tracks/{id}",
                 "/api/contact-messages", "/api/contact-messages/{id}/resolve",

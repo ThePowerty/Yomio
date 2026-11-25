@@ -58,8 +58,8 @@ export function AuthPage() {
     try {
       const payload =
         mode === "login"
-          ? { username: authForm.username, password: authForm.password }
-          : { username: authForm.username, email: authForm.email, password: authForm.password, policiesAccepted };
+          ? { email: authForm.email.trim(), password: authForm.password }
+          : { username: authForm.username, email: authForm.email.trim(), password: authForm.password, policiesAccepted };
       if (mode === "login") {
         await login(payload);
         trackEvent("login_completed");
@@ -107,31 +107,29 @@ export function AuthPage() {
         </div>
 
         <form noValidate className="stack" onSubmit={submitAuth}>
+          {mode === "register" && (
+            <label>
+              {t("auth.username")}
+              <input
+                value={authForm.username}
+                autoComplete="username"
+                onChange={(event) => setAuthForm({ ...authForm, username: event.target.value })}
+                minLength={3}
+                required
+              />
+            </label>
+          )}
           <label>
-            {t("auth.username")}
+            {t("auth.email")}
             <input
-              value={authForm.username}
-              autoComplete="username"
-              onChange={(event) => setAuthForm({ ...authForm, username: event.target.value })}
-              minLength={3}
+              type="email"
+              autoComplete={mode === "login" ? "username" : "email"}
+              value={authForm.email}
+              onChange={(event) => setAuthForm({ ...authForm, email: event.target.value })}
+              maxLength={120}
               required
             />
           </label>
-
-          {mode === "register" && (
-            <>
-              <label>
-                {t("auth.email")}
-                <input
-                  type="email"
-                  autoComplete="email"
-                  value={authForm.email}
-                  onChange={(event) => setAuthForm({ ...authForm, email: event.target.value })}
-                  required
-                />
-              </label>
-            </>
-          )}
 
           <label>
             {t("auth.password")}
