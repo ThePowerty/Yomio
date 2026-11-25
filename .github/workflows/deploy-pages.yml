@@ -40,7 +40,7 @@ jobs:
         working-directory: frontend
         env:
           VITE_BASE_PATH: ${{ steps.pages.outputs.base_path }}/
-          VITE_API_URL: ${{ vars.VITE_API_URL }}
+          VITE_API_URL: ${{ vars.VITE_API_URL || 'https://yomio.onrender.com' }}
           VITE_PUBLIC_SITE_URL: ${{ steps.pages.outputs.base_url }}
         run: npm run build
 

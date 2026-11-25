@@ -126,8 +126,9 @@ El workflow `.github/workflows/deploy-pages.yml` compila y publica el frontend c
 Antes del primer despliegue:
 
 1. En **Settings → Pages**, selecciona **GitHub Actions** como origen.
-2. Crea la variable de repositorio `VITE_API_URL` con el origen HTTPS público del backend, sin `/api` al final.
-3. Añade la URL de Pages a `CORS_ALLOWED_ORIGINS` en el backend.
+2. Autoriza el origen de Pages (`https://thepowerty.github.io`, sin `/Yomio/`) en `CORS_ALLOWED_ORIGINS` del backend.
+
+El build de Pages usa `https://yomio.onrender.com` por defecto. Para apuntar a otra API, configura `VITE_API_URL` como variable del repositorio con el origen HTTPS, sin `/api` ni barra final, y vuelve a ejecutar el workflow.
 
 GitHub Pages solo aloja el frontend estático; la API Spring Boot y PostgreSQL deben desplegarse por separado. Las variables `VITE_*` son públicas y no deben contener secretos.
 
